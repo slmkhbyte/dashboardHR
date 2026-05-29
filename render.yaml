@@ -2,30 +2,11 @@ services:
   - type: web
     runtime: docker
     name: emploi-web
+    plan: free
     dockerfilePath: ./Dockerfile.render
     dockerContext: .
     dockerCommand: sh ./docker/render/start-web.sh
-    preDeployCommand: sh ./docker/render/pre-deploy.sh
     healthCheckPath: /up
-    envVars:
-      - fromGroup: emploi-shared
-      - key: APP_KEY
-        sync: false
-      - key: APP_URL
-        sync: false
-      - key: DB_CONNECTION
-        value: pgsql
-      - key: DATABASE_URL
-        fromDatabase:
-          name: emploi-db
-          property: connectionString
-
-  - type: worker
-    runtime: docker
-    name: emploi-worker
-    dockerfilePath: ./Dockerfile.render
-    dockerContext: .
-    dockerCommand: sh ./docker/render/start-worker.sh
     envVars:
       - fromGroup: emploi-shared
       - key: APP_KEY
@@ -41,6 +22,7 @@ services:
 
 databases:
   - name: emploi-db
+    plan: free
     databaseName: emploi
     user: emploi
     ipAllowList: []
@@ -59,7 +41,7 @@ envVarGroups:
       - key: CACHE_STORE
         value: database
       - key: QUEUE_CONNECTION
-        value: database
+        value: sync
       - key: FILESYSTEM_DISK
         value: local
       - key: LOG_CHANNEL

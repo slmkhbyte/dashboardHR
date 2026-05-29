@@ -119,13 +119,19 @@ docker compose run --rm app php artisan test
 
 ## Deploy ke Render
 
-Project ini sudah disiapkan untuk deploy ke Render lewat Blueprint di [render.yaml](/home/abichos/Codes/project_yahya/emploi/render.yaml:1) dan runtime Docker production di [Dockerfile.render](/home/abichos/Codes/project_yahya/emploi/Dockerfile.render:1).
+Project ini sudah disiapkan untuk deploy ke Render Hobby/free lewat Blueprint di [render.yaml](/home/abichos/Codes/project_yahya/emploi/render.yaml:1) dan runtime Docker production di [Dockerfile.render](/home/abichos/Codes/project_yahya/emploi/Dockerfile.render:1).
 
 Yang akan dibuat di Render:
 
-- `emploi-web` untuk web app Laravel/Filament
-- `emploi-worker` untuk queue worker import/export
-- `emploi-db` untuk PostgreSQL
+- `emploi-web` sebagai free web service
+- `emploi-db` sebagai free PostgreSQL
+
+Catatan penting untuk mode gratis ini:
+
+- tidak ada worker terpisah
+- `QUEUE_CONNECTION` diset ke `sync`
+- import/export tetap bisa dipakai, tetapi diproses langsung di request web
+- migration dijalankan manual setelah deploy pertama
 
 ### 1. Push repo ke GitHub/GitLab
 
@@ -160,19 +166,18 @@ Catatan:
 ### 4. Cara kerja deploy production
 
 - Web service memakai `sh ./docker/render/start-web.sh`
-- Worker memakai `sh ./docker/render/start-worker.sh`
-- Sebelum setiap deploy web, Render menjalankan:
+- Tidak ada worker service pada mode gratis
+- Tidak ada `preDeployCommand`, karena fitur itu tidak tersedia di free web service
+
+### 5. Jalankan migration pertama secara manual
+
+Setelah deploy pertama sukses, buka shell / one-off command di Render dan jalankan:
 
 ```bash
-sh ./docker/render/pre-deploy.sh
+php artisan migrate --force
 ```
 
-Script ini akan:
-
-- menjalankan package discovery
-- menjalankan migration production dengan `php artisan migrate --force`
-
-### 5. Buat admin pertama di production
+### 6. Buat admin pertama di production
 
 Setelah deploy sukses, buat user admin dari shell/one-off command Render:
 
@@ -182,7 +187,7 @@ php artisan tinker --execute="App\Models\User::updateOrCreate(['email' => 'admin
 
 Karena model `User` memakai cast `hashed`, password plaintext di atas akan otomatis di-hash saat disimpan. Setelah login pertama, ganti password itu.
 
-### 6. Verifikasi setelah deploy
+### 7. Verifikasi setelah deploy
 
 Hal yang perlu dicek:
 
@@ -190,11 +195,14 @@ Hal yang perlu dicek:
 - buka `/admin`
 - login dengan user admin yang Anda buat
 - coba create/edit data
-- coba import CSV lalu pastikan worker memproses queue
+- coba import CSV kecil dan pastikan proses selesai tanpa worker terpisah
 
 ### Catatan penting
 
 - Local PostgreSQL `postgres_alpine` hanya untuk development lokal
 - Production Render memakai database `emploi-db`
 - Saat ini app belum menyimpan upload file dokumen, jadi storage object seperti S3 belum dibutuhkan
-- Session, cache, dan queue tetap memakai database agar setup tetap sederhana
+- Session dan cache tetap memakai database agar setup tetap sederhana
+- Queue production gratis memakai `sync`, jadi import/export besar akan terasa lebih lambat
+- Free web service Render bisa spin down saat idle
+- Free Postgres Render expire setelah 30 hari jika tidak di-upgrade
