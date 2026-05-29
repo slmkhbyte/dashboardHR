@@ -1,0 +1,68 @@
+services:
+  - type: web
+    runtime: docker
+    name: emploi-web
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    dockerCommand: sh ./docker/render/start-web.sh
+    preDeployCommand: sh ./docker/render/pre-deploy.sh
+    healthCheckPath: /up
+    envVars:
+      - fromGroup: emploi-shared
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        fromDatabase:
+          name: emploi-db
+          property: connectionString
+
+  - type: worker
+    runtime: docker
+    name: emploi-worker
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    dockerCommand: sh ./docker/render/start-worker.sh
+    envVars:
+      - fromGroup: emploi-shared
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        fromDatabase:
+          name: emploi-db
+          property: connectionString
+
+databases:
+  - name: emploi-db
+    databaseName: emploi
+    user: emploi
+    ipAllowList: []
+
+envVarGroups:
+  - name: emploi-shared
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_LIFETIME
+        value: "120"
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: LOG_CHANNEL
+        value: stack
+      - key: LOG_LEVEL
+        value: info
