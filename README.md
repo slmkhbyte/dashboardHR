@@ -131,7 +131,8 @@ Catatan penting untuk mode gratis ini:
 - tidak ada worker terpisah
 - `QUEUE_CONNECTION` diset ke `sync`
 - import/export tetap bisa dipakai, tetapi diproses langsung di request web
-- migration dijalankan manual setelah deploy pertama
+- migration dijalankan otomatis saat web service start
+- dummy data dan admin demo otomatis diseed saat boot awal Render
 
 ### 1. Push repo ke GitHub/GitLab
 
@@ -168,32 +169,27 @@ Catatan:
 - Web service memakai `sh ./docker/render/start-web.sh`
 - Tidak ada worker service pada mode gratis
 - Tidak ada `preDeployCommand`, karena fitur itu tidak tersedia di free web service
+- Saat container start, app otomatis menjalankan `php artisan migrate --force` sebelum web server hidup
+- Karena `RUN_DEMO_SEED=true`, app juga menjalankan `php artisan db:seed --force`
 
-### 5. Jalankan migration pertama secara manual
+### 5. Login admin demo
 
-Setelah deploy pertama sukses, buka shell / one-off command di Render dan jalankan:
+Seeder otomatis membuat akun demo berikut:
 
-```bash
-php artisan migrate --force
+```text
+email: admin@example.com
+password: password
 ```
 
-### 6. Buat admin pertama di production
+Kalau nanti Anda tidak ingin dummy data otomatis lagi, ubah env `RUN_DEMO_SEED=false` lalu redeploy.
 
-Setelah deploy sukses, buat user admin dari shell/one-off command Render:
-
-```bash
-php artisan tinker --execute="App\Models\User::updateOrCreate(['email' => 'admin@example.com'], ['name' => 'Admin', 'password' => 'password'])"
-```
-
-Karena model `User` memakai cast `hashed`, password plaintext di atas akan otomatis di-hash saat disimpan. Setelah login pertama, ganti password itu.
-
-### 7. Verifikasi setelah deploy
+### 6. Verifikasi setelah deploy
 
 Hal yang perlu dicek:
 
 - buka `/up` untuk health check
 - buka `/admin`
-- login dengan user admin yang Anda buat
+- login dengan user admin demo
 - coba create/edit data
 - coba import CSV kecil dan pastikan proses selesai tanpa worker terpisah
 
@@ -204,5 +200,6 @@ Hal yang perlu dicek:
 - Saat ini app belum menyimpan upload file dokumen, jadi storage object seperti S3 belum dibutuhkan
 - Session dan cache tetap memakai database agar setup tetap sederhana
 - Queue production gratis memakai `sync`, jadi import/export besar akan terasa lebih lambat
+- Seeder dummy aman dipanggil ulang karena data utama dibuat idempotent dan employee hanya diseed jika belum ada
 - Free web service Render bisa spin down saat idle
 - Free Postgres Render expire setelah 30 hari jika tidak di-upgrade

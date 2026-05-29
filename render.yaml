@@ -42,6 +42,8 @@ envVarGroups:
         value: database
       - key: QUEUE_CONNECTION
         value: sync
+      - key: RUN_DEMO_SEED
+        value: "true"
       - key: FILESYSTEM_DISK
         value: local
       - key: LOG_CHANNEL
