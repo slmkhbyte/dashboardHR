@@ -8,7 +8,7 @@
 
         <div class="fi-account-widget-main">
             <h2 class="fi-account-widget-heading">
-                {{ __('filament-panels::widgets/account-widget.welcome', ['app' => $appName]) }}
+                Selamat Datang
             </h2>
 
             <p class="fi-account-widget-user-name">

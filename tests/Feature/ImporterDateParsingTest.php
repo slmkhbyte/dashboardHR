@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Filament\Imports\EmployeeFamilyImporter;
 use App\Filament\Imports\EmployeeImporter;
 use App\Models\Employee;
-use App\Models\Division;
 use App\Models\EmploymentStatus;
 use App\Models\Position;
 use App\Models\User;
@@ -25,21 +24,27 @@ class ImporterDateParsingTest extends TestCase
 
         $import = $this->runImport(EmployeeImporter::class, [
             [
-                'nik' => 'EMP-100',
+                'nik_sap' => '00000100',
+                'nik_karyawan' => '000.0194.0573.0100',
                 'full_name' => 'Tanggal Lokal',
+                'religion' => 'Islam',
+                'work_unit' => 'AFDELING I',
+                'lvl_bod' => 1,
                 'birth_date' => '12/03/1994',
                 'hire_date' => '01/02/2025',
-                'division' => 'Human Resources',
                 'position' => 'HR Manager',
                 'employment_status' => 'Tetap',
                 'is_active' => 'true',
             ],
             [
-                'nik' => 'EMP-101',
+                'nik_sap' => '00000101',
+                'nik_karyawan' => '000.0194.0573.0101',
                 'full_name' => 'Tanggal ISO',
+                'religion' => 'Kristen',
+                'work_unit' => 'AFDELING II',
+                'lvl_bod' => 2,
                 'birth_date' => '1994-03-12',
                 'hire_date' => '2025-12-25',
-                'division' => 'Finance',
                 'position' => 'Finance Analyst',
                 'employment_status' => 'Kontrak',
                 'is_active' => 'true',
@@ -48,12 +53,12 @@ class ImporterDateParsingTest extends TestCase
 
         $this->assertSame(2, $import->successful_rows);
         $this->assertDatabaseHas('employees', [
-            'nik' => 'EMP-100',
+            'nik_sap' => '00000100',
             'birth_date' => '1994-03-12 00:00:00',
             'hire_date' => '2025-02-01 00:00:00',
         ]);
         $this->assertDatabaseHas('employees', [
-            'nik' => 'EMP-101',
+            'nik_sap' => '00000101',
             'birth_date' => '1994-03-12 00:00:00',
             'hire_date' => '2025-12-25 00:00:00',
         ]);
@@ -65,11 +70,14 @@ class ImporterDateParsingTest extends TestCase
 
         $import = $this->runImport(EmployeeImporter::class, [
             [
-                'nik' => 'EMP-102',
+                'nik_sap' => '00000102',
+                'nik_karyawan' => '000.0194.0573.0102',
                 'full_name' => 'Tanggal Serial',
+                'religion' => 'Islam',
+                'work_unit' => 'PEMELIHARAAN',
+                'lvl_bod' => 6,
                 'birth_date' => $this->excelSerialForDate('1994-03-12'),
                 'hire_date' => $this->excelSerialForDate('2025-12-25'),
-                'division' => 'Operations',
                 'position' => 'Operations Supervisor',
                 'employment_status' => 'Tetap',
                 'is_active' => 'true',
@@ -78,7 +86,7 @@ class ImporterDateParsingTest extends TestCase
 
         $this->assertSame(1, $import->successful_rows);
         $this->assertDatabaseHas('employees', [
-            'nik' => 'EMP-102',
+            'nik_sap' => '00000102',
             'birth_date' => '1994-03-12 00:00:00',
             'hire_date' => '2025-12-25 00:00:00',
         ]);
@@ -90,11 +98,14 @@ class ImporterDateParsingTest extends TestCase
 
         $import = $this->runImport(EmployeeImporter::class, [
             [
-                'nik' => 'EMP-104',
+                'nik_sap' => '00000104',
+                'nik_karyawan' => '000.0194.0573.0104',
                 'full_name' => 'Tanggal Excel Pendek',
+                'religion' => 'Kristen',
+                'work_unit' => 'PEMANTAUAN',
+                'lvl_bod' => 5,
                 'birth_date' => '03-12-94',
                 'hire_date' => '05-28-26',
-                'division' => 'Technology',
                 'position' => 'Software Engineer',
                 'employment_status' => 'Tetap',
                 'is_active' => 'true',
@@ -103,7 +114,7 @@ class ImporterDateParsingTest extends TestCase
 
         $this->assertSame(1, $import->successful_rows);
         $this->assertDatabaseHas('employees', [
-            'nik' => 'EMP-104',
+            'nik_sap' => '00000104',
             'birth_date' => '1994-03-12 00:00:00',
             'hire_date' => '2026-05-28 00:00:00',
         ]);
@@ -111,10 +122,6 @@ class ImporterDateParsingTest extends TestCase
 
     public function test_employee_family_import_accepts_excel_style_birth_dates(): void
     {
-        $division = Division::query()->create([
-            'name' => 'Human Resources',
-            'is_active' => true,
-        ]);
         $position = Position::query()->create([
             'name' => 'HR Manager',
             'is_active' => true,
@@ -126,10 +133,10 @@ class ImporterDateParsingTest extends TestCase
         ]);
 
         $employee = Employee::query()->create([
-            'nik' => 'EMP-200',
+            'nik_sap' => '00000200',
+            'nik_karyawan' => '000.0194.0573.0200',
             'full_name' => 'Parent Employee',
             'hire_date' => '2025-01-01',
-            'division_id' => $division->id,
             'position_id' => $position->id,
             'employment_status_id' => $employmentStatus->id,
             'is_active' => true,
@@ -137,14 +144,14 @@ class ImporterDateParsingTest extends TestCase
 
         $import = $this->runImport(EmployeeFamilyImporter::class, [
             [
-                'employee_nik' => $employee->nik,
+                'employee_nik_sap' => $employee->nik_sap,
                 'family_name' => 'Nama Pasangan',
                 'relationship' => 'Pasangan',
                 'birth_date' => '10.04.1995',
                 'is_dependent' => 'true',
             ],
         ], [
-            'employee' => 'employee_nik',
+            'employee' => 'employee_nik_sap',
             'name' => 'family_name',
             'relationship' => 'relationship',
             'birth_date' => 'birth_date',
@@ -167,11 +174,14 @@ class ImporterDateParsingTest extends TestCase
 
         $import = $this->runImport(EmployeeImporter::class, [
             [
-                'nik' => 'EMP-103',
+                'nik_sap' => '00000103',
+                'nik_karyawan' => '000.0194.0573.0103',
                 'full_name' => 'Tanggal Gagal',
+                'religion' => 'Islam',
+                'work_unit' => 'AFDELING I',
+                'lvl_bod' => 1,
                 'birth_date' => 'abc',
                 'hire_date' => 'abc',
-                'division' => 'Human Resources',
                 'position' => 'HR Manager',
                 'employment_status' => 'Tetap',
                 'is_active' => 'true',
@@ -183,7 +193,7 @@ class ImporterDateParsingTest extends TestCase
         $this->assertSame('abc', $import->failedRows->first()->data['hire_date']);
         $this->assertStringContainsString('date', strtolower($import->failedRows->first()->validation_error ?? ''));
         $this->assertDatabaseMissing('employees', [
-            'nik' => 'EMP-103',
+            'nik_sap' => '00000103',
         ]);
     }
 
@@ -218,7 +228,8 @@ class ImporterDateParsingTest extends TestCase
     private function defaultColumnMap(): array
     {
         return [
-            'nik' => 'nik',
+            'nik_sap' => 'nik_sap',
+            'nik_karyawan' => 'nik_karyawan',
             'full_name' => 'full_name',
             'email' => 'email',
             'phone' => 'phone',
@@ -227,9 +238,11 @@ class ImporterDateParsingTest extends TestCase
             'hire_date' => 'hire_date',
             'address' => 'address',
             'is_active' => 'is_active',
-            'division' => 'division',
             'position' => 'position',
             'employment_status' => 'employment_status',
+            'work_unit' => 'work_unit',
+            'lvl_bod' => 'lvl_bod',
+            'religion' => 'religion',
         ];
     }
 
@@ -243,27 +256,6 @@ class ImporterDateParsingTest extends TestCase
 
     private function seedEmployeeImportReferences(): void
     {
-        Division::query()->firstOrCreate([
-            'name' => 'Human Resources',
-        ], [
-            'is_active' => true,
-        ]);
-        Division::query()->firstOrCreate([
-            'name' => 'Finance',
-        ], [
-            'is_active' => true,
-        ]);
-        Division::query()->firstOrCreate([
-            'name' => 'Operations',
-        ], [
-            'is_active' => true,
-        ]);
-        Division::query()->firstOrCreate([
-            'name' => 'Technology',
-        ], [
-            'is_active' => true,
-        ]);
-
         Position::query()->firstOrCreate([
             'name' => 'HR Manager',
         ], [

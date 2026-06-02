@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Employee;
+use App\Models\HguMarker;
+use App\Observers\EmployeeObserver;
+use App\Observers\HguMarkerObserver;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Employee::observe(EmployeeObserver::class);
+        HguMarker::observe(HguMarkerObserver::class);
+
         if ($this->app->isProduction()) {
             URL::forceScheme('https');
         }

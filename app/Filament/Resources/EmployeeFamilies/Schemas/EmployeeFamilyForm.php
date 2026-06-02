@@ -33,12 +33,32 @@ class EmployeeFamilyForm
                             ->required()
                             ->options([
                                 'Pasangan' => 'Pasangan',
+                                'Istri' => 'Istri',
+                                'Suami' => 'Suami',
                                 'Anak' => 'Anak',
                                 'Orang Tua' => 'Orang Tua',
                                 'Saudara' => 'Saudara',
                             ]),
+                        Select::make('gender')
+                            ->label('Gender')
+                            ->options([
+                                'L' => 'Laki-laki',
+                                'P' => 'Perempuan',
+                            ]),
+                        TextInput::make('birth_place')
+                            ->label('Tempat Lahir')
+                            ->maxLength(255),
                         DatePicker::make('birth_date')
                             ->label('Tanggal Lahir'),
+                        TextInput::make('last_education')
+                            ->label('Pendidikan Terakhir')
+                            ->maxLength(100),
+                        TextInput::make('religion')
+                            ->label('Agama')
+                            ->maxLength(100),
+                        TextInput::make('ethnicity')
+                            ->label('Suku')
+                            ->maxLength(100),
                         TextInput::make('phone')
                             ->label('Telepon')
                             ->tel()
@@ -46,6 +66,10 @@ class EmployeeFamilyForm
                         Toggle::make('is_dependent')
                             ->label('Tanggungan')
                             ->default(false),
+                        Textarea::make('address')
+                            ->label('Alamat')
+                            ->rows(3)
+                            ->columnSpanFull(),
                         Textarea::make('notes')
                             ->label('Catatan')
                             ->rows(4)

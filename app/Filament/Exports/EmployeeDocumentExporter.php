@@ -15,7 +15,8 @@ class EmployeeDocumentExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('employee.nik')->label('NIK Karyawan'),
+            ExportColumn::make('employee.nik_sap')->label('NIK SAP'),
+            ExportColumn::make('employee.nik_karyawan')->label('NIK Karyawan'),
             ExportColumn::make('employee.full_name')->label('Nama Karyawan'),
             ExportColumn::make('document_name')->label('Nama Dokumen'),
             ExportColumn::make('document_type')->label('Jenis Dokumen'),

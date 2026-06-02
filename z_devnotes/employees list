@@ -1,0 +1,22 @@
+Requirements untuk TAB Karyawan:
+
+Front Page:
+  Header:
+  - Opsi buat data karyawan baru
+  - Opsi import data karyawan
+
+  Tabel:
+  - Tabel Header berisi:
+    - Opsi Ekspor data karyawan
+    - Pagination yang stay ketika di scroll
+    - Jumlah result sesuai filter
+    - Fitur filter berdasarkan Work Unit, Level BOD, Status Karyawan dan Jabatan
+    - Opsi show/hide kolom yang lebih fleksibel
+    - Fitur pencarian berdasarkan nama atau NIK SAP
+  
+  - List data karyawan dengan kolom-kolom seperti Nama, ID Karyawan, Work Unit, Level BOD, Status Karyawan, Jabatan, dll.
+  - Klik pada baris karyawan untuk melihat detail informasi karyawan seperti dokumen dan data tanggungan, 
+    serta opsi mengedit dan menghapus.
+  - 
+
+Edit Page:

@@ -65,7 +65,7 @@ abstract class FailedImportRowsPage extends Page implements HasTable
                     ->label('Error')
                     ->searchable()
                     ->wrap()
-                    ->placeholder('System error'),
+                    ->placeholder('System error: tidak ada detail kegagalan tersedia'),
                 TextColumn::make('data')
                     ->label('Payload')
                     ->state(fn (FailedImportRow $record): array => collect($record->data)

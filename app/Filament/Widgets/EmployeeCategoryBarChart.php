@@ -9,7 +9,7 @@ class EmployeeCategoryBarChart extends ChartWidget
 {
     protected static ?int $sort = -7;
 
-    protected ?string $heading = 'Perbandingan Karyawan per Divisi';
+    protected ?string $heading = 'Perbandingan Karyawan per Work Unit';
 
     protected int|string|array $columnSpan = [
         'lg' => 1,
@@ -18,18 +18,18 @@ class EmployeeCategoryBarChart extends ChartWidget
 
     protected function getData(): array
     {
-        $divisionCounts = Employee::query()
-            ->selectRaw('divisions.name as division_name, count(*) as aggregate')
-            ->join('divisions', 'divisions.id', '=', 'employees.division_id')
-            ->groupBy('divisions.name')
-            ->pluck('aggregate', 'division_name');
+        $workUnitCounts = Employee::query()
+            ->selectRaw('work_unit, count(*) as aggregate')
+            ->whereNotNull('work_unit')
+            ->groupBy('work_unit')
+            ->pluck('aggregate', 'work_unit');
 
-        if ($divisionCounts->isEmpty()) {
-            $divisionCounts = collect([
-                'HR' => 10,
-                'Finance' => 6,
-                'Operations' => 8,
-                'Technology' => 14,
+        if ($workUnitCounts->isEmpty()) {
+            $workUnitCounts = collect([
+                'AFDELING I' => 10,
+                'AFDELING II' => 6,
+                'AFDELING III' => 8,
+                'AFDELING IV' => 14,
             ]);
         }
 
@@ -37,12 +37,12 @@ class EmployeeCategoryBarChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Jumlah Karyawan',
-                    'data' => $divisionCounts->values()->all(),
+                    'data' => $workUnitCounts->values()->all(),
                     'backgroundColor' => '#f59e0b',
                     'borderRadius' => 8,
                 ],
             ],
-            'labels' => $divisionCounts->keys()->all(),
+            'labels' => $workUnitCounts->keys()->all(),
         ];
     }
 

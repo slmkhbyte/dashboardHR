@@ -15,11 +15,18 @@ class EmployeeFamilyExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('employee.nik')->label('NIK Karyawan'),
+            ExportColumn::make('employee.nik_sap')->label('NIK SAP'),
+            ExportColumn::make('employee.nik_karyawan')->label('NIK Karyawan'),
             ExportColumn::make('employee.full_name')->label('Nama Karyawan'),
             ExportColumn::make('name')->label('Nama Keluarga'),
             ExportColumn::make('relationship')->label('Hubungan'),
+            ExportColumn::make('gender')->label('Gender'),
+            ExportColumn::make('birth_place')->label('Tempat Lahir'),
             ExportColumn::make('birth_date')->label('Tanggal Lahir'),
+            ExportColumn::make('last_education')->label('Pendidikan Terakhir'),
+            ExportColumn::make('religion')->label('Agama'),
+            ExportColumn::make('ethnicity')->label('Suku'),
+            ExportColumn::make('address')->label('Alamat'),
             ExportColumn::make('phone')->label('Telepon'),
             ExportColumn::make('is_dependent')
                 ->label('Tanggungan')

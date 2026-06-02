@@ -66,7 +66,7 @@ class ImportHistoryPagesTest extends TestCase
         FailedImportRow::query()->create([
             'import_id' => $import->id,
             'data' => [
-                'nik' => 'EMP-999',
+                'nik_sap' => '00000999',
                 'full_name' => 'Baris Gagal',
             ],
             'validation_error' => 'The full name field is required.',
@@ -77,7 +77,7 @@ class ImportHistoryPagesTest extends TestCase
             ->get("/admin/employees/imports/{$import->id}/failed-rows")
             ->assertOk()
             ->assertSee('The full name field is required.')
-            ->assertSee('EMP-999')
+            ->assertSee('00000999')
             ->assertSee('Baris Gagal');
     }
 }

@@ -23,6 +23,10 @@ class EmployeeFamiliesTable
                     ->label('Karyawan')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('employee.nik_sap')
+                    ->label('NIK SAP')
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('name')
                     ->label('Nama Keluarga')
                     ->searchable()
@@ -31,18 +35,38 @@ class EmployeeFamiliesTable
                     ->label('Hubungan')
                     ->badge()
                     ->sortable(),
+                TextColumn::make('gender')
+                    ->label('Gender')
+                    ->badge()
+                    ->toggleable(),
+                TextColumn::make('birth_place')
+                    ->label('Tempat Lahir')
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('birth_date')
                     ->label('Tanggal Lahir')
                     ->date('d M Y')
                     ->sortable(),
+                TextColumn::make('last_education')
+                    ->label('Pendidikan')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('religion')
+                    ->label('Agama')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('ethnicity')
+                    ->label('Suku')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_dependent')
                     ->label('Tanggungan')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('relationship')
                     ->options([
                         'Pasangan' => 'Pasangan',
+                        'Istri' => 'Istri',
+                        'Suami' => 'Suami',
                         'Anak' => 'Anak',
                         'Orang Tua' => 'Orang Tua',
                         'Saudara' => 'Saudara',

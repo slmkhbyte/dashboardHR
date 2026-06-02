@@ -42,6 +42,9 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->navigationGroups([
+                NavigationGroup::make('Monitoring HGU')
+                    ->collapsible(true)
+                    ->collapsed(false),
                 NavigationGroup::make('Operasional HR')
                     ->collapsible(true)
                     ->collapsed(false),

@@ -3,12 +3,15 @@
 namespace App\Filament\Resources\Employees\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\HtmlString;
 
 class EmployeeForm
 {
@@ -18,10 +21,18 @@ class EmployeeForm
             ->components([
                 Section::make('Data Karyawan')
                     ->schema([
-                        TextInput::make('nik')
-                            ->label('NIK')
+                        TextInput::make('nik_sap')
+                            ->label('NIK SAP')
                             ->required()
-                            ->maxLength(100)
+                            ->length(8)
+                            ->rule('digits:8')
+                            ->unique(ignoreRecord: true),
+                        TextInput::make('nik_karyawan')
+                            ->label('NIK Karyawan')
+                            ->placeholder('000.0194.0573.0337 atau 000019405730337')
+                            ->required()
+                            ->maxLength(18)
+                            ->rule('regex:/^(?:\d{3}\.\d{4}\.\d{4}\.\d{4}|\d{16})$/')
                             ->unique(ignoreRecord: true),
                         TextInput::make('full_name')
                             ->label('Nama Lengkap')
@@ -42,10 +53,32 @@ class EmployeeForm
                                 'Laki-laki' => 'Laki-laki',
                                 'Perempuan' => 'Perempuan',
                             ]),
+                        TextInput::make('religion')
+                            ->label('Agama')
+                            ->maxLength(255),
+                        TextInput::make('birth_place')
+                            ->label('Tempat Lahir')
+                            ->maxLength(255),
                         DatePicker::make('birth_date')
                             ->label('Tanggal Lahir'),
+                        Select::make('last_education')
+                            ->label('Pendidikan Terakhir')
+                            ->options([
+                                'SD' => 'SD',
+                                'SMP' => 'SMP',
+                                'SMA/SMK' => 'SMA/SMK',
+                                'D1' => 'D1',
+                                'D2' => 'D2',
+                                'D3' => 'D3',
+                                'D4' => 'D4',
+                                'S1' => 'S1',
+                                'S2' => 'S2',
+                                'S3' => 'S3',
+                            ])
+                            ->searchable(),
                         DatePicker::make('hire_date')
                             ->label('Tanggal Bergabung')
+                            ->live()
                             ->required(),
                         Toggle::make('is_active')
                             ->label('Aktif')
@@ -54,12 +87,6 @@ class EmployeeForm
                     ->columns(2),
                 Section::make('Struktur Organisasi')
                     ->schema([
-                        Select::make('division_id')
-                            ->label('Divisi')
-                            ->relationship('division', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
                         Select::make('position_id')
                             ->label('Jabatan')
                             ->relationship('position', 'name')
@@ -67,13 +94,67 @@ class EmployeeForm
                             ->preload()
                             ->required(),
                         Select::make('employment_status_id')
-                            ->label('Status Kerja')
+                            ->label('Status Karyawan')
                             ->relationship('employmentStatus', 'name')
                             ->searchable()
                             ->preload()
                             ->required(),
+                        TextInput::make('employee_grade')
+                            ->label('Golongan Karyawan')
+                            ->placeholder('IIID/ 06')
+                            ->maxLength(20)
+                            ->rule('regex:/^[IVXLCDM]+[A-Z]?\/\s?\d{2}$/'),
+                        TextInput::make('work_unit')
+                            ->label('Work Unit')
+                            ->placeholder('AFDELING I')
+                            ->maxLength(255),
+                        TextInput::make('lvl_bod')
+                            ->label('LVL BOD')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(99),
+                        Select::make('marital_status')
+                            ->label('Status Tanggungan')
+                            ->options([
+                                'TK' => 'TK - Tidak kawin',
+                                'K' => 'K - Kawin',
+                            ]),
+                        TextInput::make('dependent_count')
+                            ->label('Jumlah Tanggungan Anak')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(99)
+                            ->default(0),
                     ])
-                    ->columns(1),
+                    ->columns(2),
+                Section::make('Penghargaan Masa Kerja')
+                    ->schema([
+                        Placeholder::make('award_dates')
+                            ->label('Jadwal Penghargaan')
+                            ->content(function ($get): HtmlString {
+                                $hireDate = $get('hire_date');
+
+                                if (blank($hireDate)) {
+                                    return new HtmlString('Isi tanggal bergabung dulu.');
+                                }
+
+                                $date = Carbon::parse($hireDate);
+                                $items = collect([20, 25, 30, 35])
+                                    ->map(function (int $years) use ($date): string {
+                                        $awardDate = $date->copy()
+                                            ->addYears($years)
+                                            ->addMonth()
+                                            ->startOfMonth()
+                                            ->translatedFormat('d M Y');
+
+                                        return "<li>{$years} tahun: {$awardDate}</li>";
+                                    })
+                                    ->implode('');
+
+                                return new HtmlString("<ul class=\"list-disc space-y-1 ps-5 text-sm\">{$items}</ul>");
+                            })
+                            ->columnSpanFull(),
+                    ]),
                 Section::make('Informasi Tambahan')
                     ->schema([
                         Textarea::make('address')

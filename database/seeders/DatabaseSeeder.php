@@ -100,17 +100,25 @@ class DatabaseSeeder extends Seeder
 
         collect($employeeBlueprints)->values()->each(function (array $employeeData, int $index) use ($divisionMap, $positionMap, $statusMap): void {
             $employee = Employee::query()->create([
-                'nik' => sprintf('EMP-%03d', $index + 1),
+                'nik_sap' => sprintf('%08d', $index + 1),
+                'nik_karyawan' => sprintf('000.%04d.%04d.%04d', 194 + $index, 573 + $index, 337 + $index),
                 'full_name' => $employeeData['full_name'],
                 'email' => $this->generateEmail($employeeData['full_name'], $index),
                 'phone' => sprintf('08%010d', 1111111111 + ($index * 137)),
                 'gender' => $employeeData['gender'],
+                'birth_place' => $employeeData['city'],
                 'birth_date' => $employeeData['birth_date'],
+                'last_education' => ['SMA/SMK', 'D3', 'S1', 'S2'][$index % 4],
                 'hire_date' => now()->subMonths($employeeData['hire_months_ago'])->addDays(($index % 5) * 3)->toDateString(),
                 'address' => $employeeData['city'],
-                'division_id' => $divisionMap->get($employeeData['division'])->id,
                 'position_id' => $positionMap->get($employeeData['position'])->id,
                 'employment_status_id' => $statusMap->get($employeeData['status'])->id,
+                'employee_grade' => ['IIA/ 01', 'IIB/ 02', 'IIIC/ 04', 'IIID/ 06'][$index % 4],
+                'marital_status' => $index % 3 === 0 ? 'TK' : 'K',
+                'dependent_count' => $index % 3 === 0 ? 0 : ($index % 4),
+                'work_unit' => $employeeData['division'],
+                'lvl_bod' => ($index % 8) + 1,
+                'religion' => $index % 2 === 0 ? 'Islam' : 'Kristen',
                 'is_active' => true,
             ]);
 
@@ -211,7 +219,7 @@ class DatabaseSeeder extends Seeder
                 'employee_id' => $employee->id,
                 'document_name' => $document['name'],
                 'document_type' => $document['type'],
-                'document_number' => sprintf('%s-%s-%02d', str($document['name'])->upper()->replace(' ', ''), $employee->nik, $documentIndex + 1),
+                'document_number' => sprintf('%s-%s-%02d', str($document['name'])->upper()->replace(' ', ''), $employee->nik_sap, $documentIndex + 1),
                 'issued_at' => $issuedAt->toDateString(),
                 'expires_at' => $expiresAt?->toDateString(),
                 'status' => $document['status'],
