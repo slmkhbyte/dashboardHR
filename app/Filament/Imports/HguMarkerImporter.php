@@ -22,7 +22,7 @@ class HguMarkerImporter extends Importer
                 ->requiredMapping()
                 ->exampleHeader('No Patok')
                 ->example('1')
-                ->rules(['required']),
+                ->rules(['required', 'string', 'max:255']),
 
             ImportColumn::make('utm_coordinates')
                 ->label('Koordinat UTM')
@@ -30,7 +30,8 @@ class HguMarkerImporter extends Importer
                 ->exampleHeader('Koordinat UTM')
                 ->example('49M 420553 9987669')
                 ->helperText('Masukkan seluruh UTM dalam satu kolom, misalnya: 49M 420553 9987669')
-                ->ignoreBlankState(),
+                ->ignoreBlankState()
+                ->rules(['nullable', 'string', 'max:255']),
 
             ImportColumn::make('utm_x')
                 ->label('UTM 49 M sumbu X')
@@ -54,7 +55,8 @@ class HguMarkerImporter extends Importer
                 ->exampleHeader('Koordinat Garis Bujur')
                 ->example('110° 17\' 9,763" E')
                 ->castStateUsing(fn (mixed $originalState, mixed $state): mixed => GeoCoordinateParser::parseLatitudeOrLongitude($originalState ?? $state))
-                ->ignoreBlankState(),
+                ->ignoreBlankState()
+                ->rules(['nullable', 'numeric', 'between:-180,180']),
 
             ImportColumn::make('latitude')
                 ->label('Koordinat Garis Lintang')
@@ -62,30 +64,35 @@ class HguMarkerImporter extends Importer
                 ->exampleHeader('Koordinat Garis Lintang')
                 ->example('0° 6\' 41,589" S')
                 ->castStateUsing(fn (mixed $originalState, mixed $state): mixed => GeoCoordinateParser::parseLatitudeOrLongitude($originalState ?? $state))
-                ->ignoreBlankState(),
+                ->ignoreBlankState()
+                ->rules(['nullable', 'numeric', 'between:-90,90']),
 
             ImportColumn::make('marker_type')
                 ->label('Jenis Patok')
                 ->exampleHeader('Jenis Patok')
                 ->example('Pt.Semen')
-                ->castStateUsing(fn (mixed $originalState, mixed $state): mixed => self::resolveMarkerType($originalState ?? $state)),
+                ->castStateUsing(fn (mixed $originalState, mixed $state): mixed => self::resolveMarkerType($originalState ?? $state))
+                ->rules(['nullable', 'string', 'max:255']),
 
             ImportColumn::make('condition')
                 ->label('Keterangan')
                 ->exampleHeader('Keterangan')
                 ->example('Rusak')
-                ->castStateUsing(fn (mixed $originalState, mixed $state): mixed => self::resolveCondition($originalState ?? $state)),
+                ->castStateUsing(fn (mixed $originalState, mixed $state): mixed => self::resolveCondition($originalState ?? $state))
+                ->rules(['nullable', 'string', 'max:255']),
 
             ImportColumn::make('afdeling')
                 ->label('Afdeling')
                 ->exampleHeader('Afdeling')
                 ->example('I')
-                ->castStateUsing(fn (mixed $originalState, mixed $state): mixed => self::parseAfdeling($originalState ?? $state)),
+                ->castStateUsing(fn (mixed $originalState, mixed $state): mixed => self::parseAfdeling($originalState ?? $state))
+                ->rules(['nullable', 'integer', 'between:1,8']),
 
             ImportColumn::make('notes')
                 ->label('Catatan')
                 ->exampleHeader('Catatan')
-                ->example('Catatan tambahan'),
+                ->example('Catatan tambahan')
+                ->rules(['nullable', 'string']),
         ];
     }
 

@@ -64,6 +64,35 @@ class HguMarkerImporterTest extends TestCase
         $this->assertContains('no patok', $markerNumberColumn->getGuesses());
     }
 
+    public function test_hgu_marker_import_validates_out_of_bounds_coordinates(): void
+    {
+        $import = $this->runImport([
+            [
+                'No Patok' => '1',
+                'UTM 49 M sumbu X' => '420553',
+                'UTM 49 M sumbu Y' => '9987669',
+                'Koordinat Garis Bujur' => '190.0', // Out of bounds longitude (> 180)
+                'Koordinat Garis Lintang' => '0° 6\' 41,589" S',
+                'Jenis Patok' => 'Pt.Semen',
+                'Keterangan' => 'Rusak',
+                'Afdeling' => 'I',
+            ],
+            [
+                'No Patok' => '2',
+                'UTM 49 M sumbu X' => '420546',
+                'UTM 49 M sumbu Y' => '9987918',
+                'Koordinat Garis Bujur' => '110° 17\' 9,531" E',
+                'Koordinat Garis Lintang' => '-95.0', // Out of bounds latitude (< -90)
+                'Jenis Patok' => 'Pt.Paralon',
+                'Keterangan' => 'Baik',
+                'Afdeling' => 'I',
+            ],
+        ]);
+
+        $this->assertSame(0, $import->successful_rows);
+        $this->assertCount(2, $import->failedRows);
+    }
+
     private function runImport(array $rows): Import
     {
         $user = User::factory()->create();
