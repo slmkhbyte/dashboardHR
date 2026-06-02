@@ -1,14 +1,14 @@
 services:
   - type: web
     runtime: docker
-    name: emploi-web
+    name: dashboard-gunme
     plan: free
     dockerfilePath: ./Dockerfile.render
     dockerContext: .
     dockerCommand: sh ./docker/render/start-web.sh
     healthCheckPath: /up
     envVars:
-      - fromGroup: emploi-shared
+      - fromGroup: gunme-shared
       - key: APP_KEY
         sync: false
       - key: APP_URL
@@ -17,18 +17,18 @@ services:
         value: pgsql
       - key: DATABASE_URL
         fromDatabase:
-          name: emploi-db
+          name: gunme-db
           property: connectionString
 
 databases:
-  - name: emploi-db
+  - name: gunme-db
     plan: free
-    databaseName: emploi
-    user: emploi
+    databaseName: gunme
+    user: gunme
     ipAllowList: []
 
 envVarGroups:
-  - name: emploi-shared
+  - name: gunme-shared
     envVars:
       - key: APP_ENV
         value: production
