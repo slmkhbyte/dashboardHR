@@ -31,9 +31,9 @@ envVarGroups:
   - name: gunme-shared
     envVars:
       - key: APP_ENV
-        value: production
+        value: development
       - key: APP_DEBUG
-        value: "false"
+        value: "true"
       - key: SESSION_DRIVER
         value: database
       - key: SESSION_LIFETIME
