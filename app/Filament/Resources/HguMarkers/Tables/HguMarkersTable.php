@@ -90,7 +90,7 @@ class HguMarkersTable
                     ->options(HguMarker::CONDITIONS),
                 SelectFilter::make('marker_type')
                     ->label('Jenis Patok')
-                    ->options(HguMarker::MARKER_TYPES),
+                    ->options(fn (): array => HguMarker::getMarkerTypeOptions()),
                 TernaryFilter::make('is_moved')
                     ->label('Patok Dipindah'),
             ])

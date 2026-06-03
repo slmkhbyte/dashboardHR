@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use App\Models\HguMarker;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class HguMarkerObserver
 {
@@ -44,12 +46,24 @@ class HguMarkerObserver
 
     private function recordHistory(HguMarker $marker, string $event, ?array $oldValues, ?array $newValues): void
     {
-        $marker->histories()->create([
-            'event' => $event,
-            'old_values' => $oldValues,
-            'new_values' => $newValues,
-            'changed_by' => auth()->id(),
-        ]);
+        try {
+            $marker->histories()->create([
+                'event' => $event,
+                'old_values' => $oldValues,
+                'new_values' => $newValues,
+                'changed_by' => auth()->id(),
+            ]);
+        } catch (Throwable $exception) {
+            Log::error('Failed to write HGU marker history.', [
+                'marker_id' => $marker->getKey(),
+                'marker_number' => $marker->marker_number,
+                'event' => $event,
+                'old_values' => $oldValues,
+                'new_values' => $newValues,
+                'exception_class' => $exception::class,
+                'exception_message' => $exception->getMessage(),
+            ]);
+        }
     }
 
     private function cleanValues(array $values): array

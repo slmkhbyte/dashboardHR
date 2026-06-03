@@ -96,9 +96,9 @@ class EmployeeRecapSummary extends Widget implements HasActions, HasSchemas
         return Employee::query()
             ->leftJoin('positions', 'positions.id', '=', 'employees.position_id')
             ->selectRaw("COALESCE(positions.name, 'Belum Diisi') as label, count(*) as aggregate")
-            ->groupBy('label')
+            ->groupByRaw('positions.name')
             ->orderByDesc('aggregate')
-            ->orderBy('label')
+            ->orderByRaw("COALESCE(positions.name, 'Belum Diisi')")
             ->get()
             ->map(fn ($row): array => [
                 'label' => $row->label,
@@ -114,9 +114,9 @@ class EmployeeRecapSummary extends Widget implements HasActions, HasSchemas
         return Employee::query()
             ->leftJoin('employment_statuses', 'employment_statuses.id', '=', 'employees.employment_status_id')
             ->selectRaw("COALESCE(employment_statuses.name, 'Belum Diisi') as label, count(*) as aggregate")
-            ->groupBy('label')
+            ->groupByRaw('employment_statuses.name')
             ->orderByDesc('aggregate')
-            ->orderBy('label')
+            ->orderByRaw("COALESCE(employment_statuses.name, 'Belum Diisi')")
             ->get()
             ->map(fn ($row): array => [
                 'label' => $row->label,
@@ -130,10 +130,10 @@ class EmployeeRecapSummary extends Widget implements HasActions, HasSchemas
     public function getLevelBodCounts(): Collection
     {
         return Employee::query()
-            ->selectRaw("COALESCE(CAST(lvl_bod AS CHAR), 'Belum Diisi') as label, count(*) as aggregate")
-            ->groupBy('label')
-            ->orderByRaw("CASE WHEN label = 'Belum Diisi' THEN 1 ELSE 0 END")
-            ->orderByRaw('CAST(label AS UNSIGNED)')
+            ->selectRaw("COALESCE(CAST(lvl_bod AS TEXT), 'Belum Diisi') as label, count(*) as aggregate")
+            ->groupBy('lvl_bod')
+            ->orderByRaw('CASE WHEN lvl_bod IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('lvl_bod')
             ->get()
             ->map(fn ($row): array => [
                 'label' => $row->label === 'Belum Diisi' ? $row->label : 'Level ' . $row->label,
@@ -148,9 +148,9 @@ class EmployeeRecapSummary extends Widget implements HasActions, HasSchemas
     {
         return Employee::query()
             ->selectRaw("COALESCE(NULLIF(work_unit, ''), 'Belum Diisi') as label, count(*) as aggregate")
-            ->groupBy('label')
+            ->groupByRaw("NULLIF(work_unit, '')")
             ->orderByDesc('aggregate')
-            ->orderBy('label')
+            ->orderByRaw("COALESCE(NULLIF(work_unit, ''), 'Belum Diisi')")
             ->get()
             ->map(fn ($row): array => [
                 'label' => $row->label,
@@ -165,9 +165,9 @@ class EmployeeRecapSummary extends Widget implements HasActions, HasSchemas
     {
         return Employee::query()
             ->selectRaw("COALESCE(NULLIF(gender, ''), 'Belum Diisi') as label, count(*) as aggregate")
-            ->groupBy('label')
+            ->groupByRaw("NULLIF(gender, '')")
             ->orderByDesc('aggregate')
-            ->orderBy('label')
+            ->orderByRaw("COALESCE(NULLIF(gender, ''), 'Belum Diisi')")
             ->get()
             ->map(fn ($row): array => [
                 'label' => $row->label,

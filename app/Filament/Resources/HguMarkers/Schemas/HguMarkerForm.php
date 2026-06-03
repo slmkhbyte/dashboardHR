@@ -44,7 +44,8 @@ class HguMarkerForm
                             ->label('Jenis Patok')
                             ->required()
                             ->default('beton')
-                            ->options(HguMarker::MARKER_TYPES),
+                            ->options(fn (): array => HguMarker::getMarkerTypeOptions())
+                            ->searchable(),
                         Select::make('condition')
                             ->label('Keadaan / Kondisi Patok')
                             ->required()

@@ -10,16 +10,28 @@ class HguMarker extends Model
 {
     use HasFactory;
 
+    public const MARKER_TYPE_BETON = 'beton';
+
+    public const MARKER_TYPE_PARALON = 'paralon';
+
+    public const CONDITION_BAIK = 'baik';
+
+    public const CONDITION_RUSAK_RINGAN = 'rusak_ringan';
+
+    public const CONDITION_RUSAK_BERAT = 'rusak_berat';
+
+    public const CONDITION_HILANG = 'hilang';
+
     public const MARKER_TYPES = [
-        'beton' => 'Beton',
-        'paralon' => 'Paralon',
+        self::MARKER_TYPE_BETON => 'Beton',
+        self::MARKER_TYPE_PARALON => 'Paralon',
     ];
 
     public const CONDITIONS = [
-        'baik' => 'Baik',
-        'rusak_ringan' => 'Rusak Ringan',
-        'rusak_berat' => 'Rusak Berat',
-        'hilang' => 'Hilang',
+        self::CONDITION_BAIK => 'Baik',
+        self::CONDITION_RUSAK_RINGAN => 'Rusak Ringan',
+        self::CONDITION_RUSAK_BERAT => 'Rusak Berat',
+        self::CONDITION_HILANG => 'Hilang',
     ];
 
     protected $fillable = [
@@ -87,5 +99,21 @@ class HguMarker extends Model
     public function histories(): HasMany
     {
         return $this->hasMany(HguMarkerHistory::class);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function getMarkerTypeOptions(): array
+    {
+        $dynamicOptions = static::query()
+            ->whereNotNull('marker_type')
+            ->distinct()
+            ->pluck('marker_type')
+            ->filter(fn (?string $value): bool => filled($value))
+            ->mapWithKeys(fn (string $value): array => [trim($value) => trim($value)])
+            ->all();
+
+        return array_replace($dynamicOptions, self::MARKER_TYPES);
     }
 }
