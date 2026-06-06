@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\HguMarkers\RelationManagers;
 
+use App\Models\HguMarkerPhoto;
+use App\Support\HguMarkerPhotoStorage;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -15,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class PhotosRelationManager extends RelationManager
 {
@@ -26,12 +29,15 @@ class PhotosRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                FileUpload::make('photo_path')
+                FileUpload::make('photo_upload')
                     ->label('Foto')
                     ->image()
-                    ->disk('public')
-                    ->directory('hgu-marker-photos')
-                    ->visibility('public')
+                    ->disk(HguMarkerPhotoStorage::tempDisk())
+                    ->directory(HguMarkerPhotoStorage::tempDirectory())
+                    ->visibility('private')
+                    ->getUploadedFileNameForStorageUsing(
+                        fn (TemporaryUploadedFile $file): string => HguMarkerPhotoStorage::generateStoredFilename($file),
+                    )
                     ->imageEditor()
                     ->imageResizeMode('contain')
                     ->imageResizeTargetWidth('1600')
@@ -39,7 +45,7 @@ class PhotosRelationManager extends RelationManager
                     ->imageResizeUpscale(false)
                     ->fetchFileInformation(false)
                     ->maxSize(4096)
-                    ->required()
+                    ->required(fn (string $operation): bool => $operation === 'create')
                     ->columnSpanFull(),
                 DateTimePicker::make('uploaded_at')
                     ->label('Tanggal Upload')
@@ -56,9 +62,9 @@ class PhotosRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                ImageColumn::make('photo_path')
+                ImageColumn::make('image_url')
                     ->label('Foto')
-                    ->disk('public')
+                    ->getStateUsing(fn (HguMarkerPhoto $record): ?string => $record->image_url)
                     ->height(72)
                     ->square(),
                 TextColumn::make('caption')
@@ -77,13 +83,43 @@ class PhotosRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->mutateDataUsing(function (array $data): array {
+                        $path = $data['photo_upload'] ?? null;
+
+                        if (blank($path)) {
+                            unset($data['photo_upload']);
+
+                            return $data;
+                        }
+
+                        try {
+                            $data = array_merge($data, HguMarkerPhotoStorage::buildDatabasePayload($path));
+                        } finally {
+                            HguMarkerPhotoStorage::deleteTempFile($path);
+                        }
+
                         $data['uploaded_by'] = auth()->id();
+                        unset($data['photo_upload']);
 
                         return $data;
                     }),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->mutateDataUsing(function (array $data): array {
+                        $path = $data['photo_upload'] ?? null;
+
+                        if (filled($path)) {
+                            try {
+                                $data = array_merge($data, HguMarkerPhotoStorage::buildDatabasePayload($path));
+                            } finally {
+                                HguMarkerPhotoStorage::deleteTempFile($path);
+                            }
+                        }
+
+                        unset($data['photo_upload']);
+
+                        return $data;
+                    }),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

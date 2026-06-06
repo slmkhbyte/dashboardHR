@@ -3,7 +3,6 @@
 namespace App\Filament\Imports;
 
 use App\Filament\Imports\Concerns\HasFlexibleDateImportColumns;
-use App\Models\Division;
 use App\Models\Employee;
 use App\Models\EmploymentStatus;
 use App\Models\Position;
@@ -82,6 +81,17 @@ class EmployeeImporter extends Importer
                 ->guess(['pendidikan terakhir', 'pendidikan', 'last_education', 'last education'])
                 ->exampleHeader('Pendidikan terakhir')
                 ->example('S1')
+                ->castStateUsing(function (mixed $originalState, mixed $state): ?string {
+                    $value = $originalState ?? $state;
+
+                    if (blank($value)) {
+                        return null;
+                    }
+
+                    $value = trim((string) $value);
+
+                    return $value === '' ? null : $value;
+                })
                 ->rules(['nullable']),
             static::dateImportColumn(ImportColumn::make('hire_date'))
                 ->label('Tanggal Bergabung')
@@ -210,17 +220,11 @@ class EmployeeImporter extends Importer
         $this->record->hire_date ??= now()->toDateString();
 
         if (blank($this->record->position_id)) {
-            $this->record->position()->associate(Position::query()->firstOrCreate(
-                ['name' => 'Belum Diisi'],
-                ['is_active' => true],
-            ));
+            $this->record->position()->associate(Position::getOrCreateDefault());
         }
 
         if (blank($this->record->employment_status_id)) {
-            $this->record->employmentStatus()->associate(EmploymentStatus::query()->firstOrCreate(
-                ['name' => 'Belum Diisi'],
-                ['color' => 'gray', 'is_active' => true],
-            ));
+            $this->record->employmentStatus()->associate(EmploymentStatus::getOrCreateDefault());
         }
     }
 

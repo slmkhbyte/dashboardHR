@@ -19,6 +19,7 @@ class EmployeeLevelBodBarChart extends ChartWidget
     protected function getData(): array
     {
         $levelCounts = Employee::query()
+            ->active()
             ->selectRaw('lvl_bod, count(*) as aggregate')
             ->whereNotNull('lvl_bod')
             ->groupBy('lvl_bod')

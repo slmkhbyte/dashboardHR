@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Employee;
+use App\Models\EmployeeDocument;
 use App\Models\HguMarker;
+use App\Observers\EmployeeDocumentObserver;
 use App\Observers\EmployeeObserver;
 use App\Observers\HguMarkerObserver;
 use Illuminate\Support\Facades\URL;
@@ -25,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Employee::observe(EmployeeObserver::class);
+        EmployeeDocument::observe(EmployeeDocumentObserver::class);
         HguMarker::observe(HguMarkerObserver::class);
 
         if ($this->app->isProduction()) {

@@ -99,8 +99,8 @@ http://localhost:8000/admin
 Login default:
 
 ```text
-email: admin@example.com
-password: password
+email: salma@dbgunme.com
+password: dbgunmekeren
 ```
 
 Vite dev server juga ikut jalan di:
@@ -177,8 +177,8 @@ Catatan:
 Seeder otomatis membuat akun demo berikut:
 
 ```text
-email: admin@example.com
-password: password
+email: salma@dbgunme.com
+password: dbgunmekeren
 ```
 
 Kalau nanti Anda tidak ingin dummy data otomatis lagi, ubah env `RUN_DEMO_SEED=false` lalu redeploy.
@@ -197,7 +197,7 @@ Hal yang perlu dicek:
 
 - Local PostgreSQL `postgres_alpine` hanya untuk development lokal
 - Production Render memakai database `emploi-db`
-- Saat ini app belum menyimpan upload file dokumen, jadi storage object seperti S3 belum dibutuhkan
+- Upload foto patok HGU sekarang disimpan langsung ke database untuk kebutuhan demo, jadi tidak bergantung pada filesystem ephemeral Render
 - Session dan cache tetap memakai database agar setup tetap sederhana
 - Queue production gratis memakai `sync`, jadi import/export besar akan terasa lebih lambat
 - Seeder dummy aman dipanggil ulang karena data utama dibuat idempotent dan employee hanya diseed jika belum ada

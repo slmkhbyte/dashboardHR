@@ -19,6 +19,7 @@ class EmployeeDistributionChart extends ChartWidget
     protected function getData(): array
     {
         $statusCounts = Employee::query()
+            ->active()
             ->selectRaw('employment_statuses.name as status_name, count(*) as aggregate')
             ->join('employment_statuses', 'employment_statuses.id', '=', 'employees.employment_status_id')
             ->groupBy('employment_statuses.name')

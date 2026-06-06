@@ -2,8 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\DemoActionsCard;
 use App\Filament\Widgets\EmployeeCategoryBarChart;
 use App\Filament\Widgets\EmployeeDistributionChart;
+use App\Filament\Widgets\EmployeeLevelBodBarChart;
 use App\Filament\Widgets\EmployeeTrendLineChart;
 use App\Filament\Widgets\HrStatsOverview;
 use App\Filament\Widgets\WelcomeCard;
@@ -59,6 +61,8 @@ class AdminPanelProvider extends PanelProvider
                 EmployeeDistributionChart::class,
                 EmployeeCategoryBarChart::class,
                 EmployeeTrendLineChart::class,
+                EmployeeLevelBodBarChart::class,
+                DemoActionsCard::class,
             ])
             ->middleware([
                 EncryptCookies::class,

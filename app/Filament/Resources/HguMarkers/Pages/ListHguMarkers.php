@@ -6,13 +6,13 @@ use App\Filament\Imports\HguMarkerImporter;
 use App\Filament\Resources\HguMarkers\HguMarkerResource;
 use App\Filament\Resources\HguMarkers\Widgets\HguMarkerConditionOverview;
 use App\Support\HguMarkerPhotoBatchImporter;
+use App\Support\HguMarkerPhotoStorage;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ImportAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ListHguMarkers extends ListRecords
@@ -37,11 +37,11 @@ class ListHguMarkers extends ListRecords
                         ->label('Foto Patok')
                         ->multiple()
                         ->image()
-                        ->disk('public')
-                        ->directory('hgu-marker-photos')
-                        ->visibility('public')
+                        ->disk(HguMarkerPhotoStorage::tempDisk())
+                        ->directory(HguMarkerPhotoStorage::tempDirectory())
+                        ->visibility('private')
                         ->getUploadedFileNameForStorageUsing(
-                            fn (TemporaryUploadedFile $file): string => Str::uuid() . '__' . $file->getClientOriginalName(),
+                            fn (TemporaryUploadedFile $file): string => HguMarkerPhotoStorage::generateStoredFilename($file),
                         )
                         ->helperText('Nama file harus sama dengan nomor patok. Contoh: 1.jpg atau 001.jpg akan dicocokkan ke patok 1.')
                         ->maxSize(4096)
@@ -52,6 +52,7 @@ class ListHguMarkers extends ListRecords
                 ->action(function (array $data): void {
                     $result = app(HguMarkerPhotoBatchImporter::class)->import(
                         paths: array_values($data['photos'] ?? []),
+                        disk: HguMarkerPhotoStorage::tempDisk(),
                         uploadedBy: auth()->id(),
                     );
 

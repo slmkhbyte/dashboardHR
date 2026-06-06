@@ -19,6 +19,7 @@ class EmployeeCategoryBarChart extends ChartWidget
     protected function getData(): array
     {
         $workUnitCounts = Employee::query()
+            ->active()
             ->selectRaw('work_unit, count(*) as aggregate')
             ->whereNotNull('work_unit')
             ->groupBy('work_unit')

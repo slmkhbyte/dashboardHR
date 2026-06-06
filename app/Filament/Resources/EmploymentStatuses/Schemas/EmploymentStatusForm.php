@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\EmploymentStatuses\Schemas;
 
+use App\Models\EmploymentStatus;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -20,6 +21,8 @@ class EmploymentStatusForm
                         TextInput::make('name')
                             ->label('Nama Status')
                             ->required()
+                            ->disabled(fn (?EmploymentStatus $record): bool => $record?->isDefault() ?? false)
+                            ->unique(ignoreRecord: true)
                             ->maxLength(255),
                         Select::make('color')
                             ->label('Warna Badge')

@@ -12,8 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('employees', function (Blueprint $table): void {
-            $table->dropForeign(['division_id']);
-            $table->dropColumn('division_id');
             $table->dropColumn('afdeling');
 
             $table->string('religion')->nullable()->after('gender');
@@ -28,7 +26,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('employees', function (Blueprint $table): void {
-            $table->foreignId('division_id')->constrained()->cascadeOnUpdate()->restrictOnDelete()->after('address');
             $table->unsignedTinyInteger('afdeling')->nullable()->after('dependent_count');
             $table->dropColumn(['work_unit', 'lvl_bod', 'religion']);
         });

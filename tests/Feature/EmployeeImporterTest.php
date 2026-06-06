@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Filament\Imports\EmployeeImporter;
 use App\Models\Employee;
+use App\Models\EmploymentStatus;
+use App\Models\Position;
 use App\Models\User;
 use Filament\Actions\Imports\Jobs\ImportCsv;
 use Filament\Actions\Imports\Models\Import;
@@ -30,8 +32,8 @@ class EmployeeImporterTest extends TestCase
         $employee = Employee::query()->where('nik_sap', '13004844')->firstOrFail();
 
         $this->assertSame('Karyawan 13004844', $employee->full_name);
-        $this->assertSame('Belum Diisi', $employee->position->name);
-        $this->assertSame('Belum Diisi', $employee->employmentStatus->name);
+        $this->assertSame(Position::DEFAULT_NAME, $employee->position->name);
+        $this->assertSame(EmploymentStatus::DEFAULT_NAME, $employee->employmentStatus->name);
         $this->assertNotNull($employee->hire_date);
     }
 
@@ -171,6 +173,48 @@ class EmployeeImporterTest extends TestCase
             'gender' => 'Laki-laki',
             'hire_date' => '1991-01-21 00:00:00',
             'work_unit' => 'AFDELING VII',
+        ]);
+    }
+
+    public function test_employee_import_preserves_freeform_last_education_values(): void
+    {
+        $import = $this->runImport([
+            [
+                'NIK_SAP' => '13004846',
+                'Nama Lengkap' => 'Sulastri',
+                'Pendidikan Terakhir' => '  SD Negeri  ',
+                'tmt Bekerja' => '01/03/2025',
+                'JABATAN' => 'Staff',
+                'STATUS' => 'Tetap',
+            ],
+            [
+                'NIK_SAP' => '13004847',
+                'Nama Lengkap' => 'Sunaryo',
+                'Pendidikan Terakhir' => 'S1 Teknik Pertanian',
+                'tmt Bekerja' => '01/04/2025',
+                'JABATAN' => 'Mandor',
+                'STATUS' => 'Kontrak',
+            ],
+        ], [
+            'nik_sap' => 'NIK_SAP',
+            'full_name' => 'Nama Lengkap',
+            'last_education' => 'Pendidikan Terakhir',
+            'hire_date' => 'tmt Bekerja',
+            'position' => 'JABATAN',
+            'employment_status' => 'STATUS',
+        ]);
+
+        $this->assertSame(2, $import->successful_rows);
+        $this->assertCount(0, $import->failedRows);
+
+        $this->assertDatabaseHas('employees', [
+            'nik_sap' => '13004846',
+            'last_education' => 'SD Negeri',
+        ]);
+
+        $this->assertDatabaseHas('employees', [
+            'nik_sap' => '13004847',
+            'last_education' => 'S1 Teknik Pertanian',
         ]);
     }
 

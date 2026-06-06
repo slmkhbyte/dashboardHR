@@ -61,21 +61,9 @@ class EmployeeForm
                             ->maxLength(255),
                         DatePicker::make('birth_date')
                             ->label('Tanggal Lahir'),
-                        Select::make('last_education')
+                        TextInput::make('last_education')
                             ->label('Pendidikan Terakhir')
-                            ->options([
-                                'SD' => 'SD',
-                                'SMP' => 'SMP',
-                                'SMA/SMK' => 'SMA/SMK',
-                                'D1' => 'D1',
-                                'D2' => 'D2',
-                                'D3' => 'D3',
-                                'D4' => 'D4',
-                                'S1' => 'S1',
-                                'S2' => 'S2',
-                                'S3' => 'S3',
-                            ])
-                            ->searchable(),
+                            ->maxLength(255),
                         DatePicker::make('hire_date')
                             ->label('Tanggal Bergabung')
                             ->live()

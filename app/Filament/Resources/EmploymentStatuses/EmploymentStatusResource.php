@@ -4,6 +4,7 @@ namespace App\Filament\Resources\EmploymentStatuses;
 use App\Filament\Resources\EmploymentStatuses\Pages\CreateEmploymentStatus;
 use App\Filament\Resources\EmploymentStatuses\Pages\EditEmploymentStatus;
 use App\Filament\Resources\EmploymentStatuses\Pages\ListEmploymentStatuses;
+use App\Filament\Resources\EmploymentStatuses\RelationManagers\EmployeesRelationManager;
 use App\Filament\Resources\EmploymentStatuses\Schemas\EmploymentStatusForm;
 use App\Filament\Resources\EmploymentStatuses\Tables\EmploymentStatusesTable;
 use App\Models\EmploymentStatus;
@@ -42,7 +43,7 @@ class EmploymentStatusResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            EmployeesRelationManager::class,
         ];
     }
 

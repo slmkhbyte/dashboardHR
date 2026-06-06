@@ -21,7 +21,6 @@ return new class extends Migration
             $table->date('birth_date')->nullable();
             $table->date('hire_date');
             $table->text('address')->nullable();
-            $table->foreignId('division_id')->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('position_id')->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('employment_status_id')->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->boolean('is_active')->default(true);

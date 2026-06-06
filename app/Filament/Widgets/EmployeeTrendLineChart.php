@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Employee;
+use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
 
 class EmployeeTrendLineChart extends ChartWidget
@@ -11,9 +12,14 @@ class EmployeeTrendLineChart extends ChartWidget
 
     protected ?string $heading = 'Progres Penambahan Data per Bulan';
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = [
+        'lg' => 1,
+        'xl' => 1,
+    ];
 
-    protected ?string $maxHeight = '260px';
+    protected string $view = 'filament.widgets.employee-trend-line-chart';
+
+    protected ?string $maxHeight = '365px';
 
     protected function getData(): array
     {
@@ -21,6 +27,7 @@ class EmployeeTrendLineChart extends ChartWidget
             ->map(fn (int $monthsAgo): string => now()->subMonths($monthsAgo)->translatedFormat('M Y'));
 
         $series = Employee::query()
+            ->active()
             ->get(['hire_date'])
             ->groupBy(fn (Employee $employee): string => $employee->hire_date->format('Y-m'));
 
@@ -49,5 +56,12 @@ class EmployeeTrendLineChart extends ChartWidget
     protected function getType(): string
     {
         return 'line';
+    }
+
+    protected function getOptions(): array | RawJs | null
+    {
+        return [
+            'maintainAspectRatio' => false,
+        ];
     }
 }

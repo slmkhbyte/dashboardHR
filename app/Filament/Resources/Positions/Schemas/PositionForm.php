@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Positions\Schemas;
 
+use App\Models\Position;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
@@ -19,6 +20,8 @@ class PositionForm
                         TextInput::make('name')
                             ->label('Nama Jabatan')
                             ->required()
+                            ->disabled(fn (?Position $record): bool => $record?->isDefault() ?? false)
+                            ->unique(ignoreRecord: true)
                             ->maxLength(255),
                         TextInput::make('code')
                             ->label('Kode Jabatan')

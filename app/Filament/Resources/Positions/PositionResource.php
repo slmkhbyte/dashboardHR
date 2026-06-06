@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Positions;
 use App\Filament\Resources\Positions\Pages\CreatePosition;
 use App\Filament\Resources\Positions\Pages\EditPosition;
 use App\Filament\Resources\Positions\Pages\ListPositions;
+use App\Filament\Resources\Positions\RelationManagers\EmployeesRelationManager;
 use App\Filament\Resources\Positions\Schemas\PositionForm;
 use App\Filament\Resources\Positions\Tables\PositionsTable;
 use App\Models\Position;
@@ -42,7 +43,7 @@ class PositionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            EmployeesRelationManager::class,
         ];
     }
 

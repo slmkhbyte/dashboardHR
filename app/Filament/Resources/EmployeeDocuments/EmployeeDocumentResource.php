@@ -4,6 +4,7 @@ namespace App\Filament\Resources\EmployeeDocuments;
 use App\Filament\Resources\EmployeeDocuments\Pages\CreateEmployeeDocument;
 use App\Filament\Resources\EmployeeDocuments\Pages\EditEmployeeDocument;
 use App\Filament\Resources\EmployeeDocuments\Pages\ListEmployeeDocuments;
+use App\Filament\Resources\EmployeeDocuments\RelationManagers\HistoriesRelationManager;
 use App\Filament\Resources\EmployeeDocuments\Schemas\EmployeeDocumentForm;
 use App\Filament\Resources\EmployeeDocuments\Tables\EmployeeDocumentsTable;
 use App\Models\EmployeeDocument;
@@ -42,7 +43,7 @@ class EmployeeDocumentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            HistoriesRelationManager::class,
         ];
     }
 

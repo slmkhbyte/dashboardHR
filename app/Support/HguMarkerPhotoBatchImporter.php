@@ -13,8 +13,9 @@ class HguMarkerPhotoBatchImporter
      * @param  array<int, string>  $paths
      * @return array{created: int, skipped: array<int, string>}
      */
-    public function import(array $paths, ?int $uploadedBy = null): array
+    public function import(array $paths, ?string $disk = null, ?int $uploadedBy = null): array
     {
+        $disk ??= HguMarkerPhotoStorage::tempDisk();
         $markers = $this->getMarkerLookup();
         $created = 0;
         $skipped = [];
@@ -26,17 +27,21 @@ class HguMarkerPhotoBatchImporter
 
             if (! $marker) {
                 $skipped[] = basename($path);
+                HguMarkerPhotoStorage::deleteTempFile($path, $disk);
 
                 continue;
             }
 
-            HguMarkerPhoto::query()->create([
-                'hgu_marker_id' => $marker->id,
-                'photo_path' => $path,
-                'caption' => 'Upload batch: ' . basename($path),
-                'uploaded_at' => now(),
-                'uploaded_by' => $uploadedBy,
-            ]);
+            try {
+                HguMarkerPhoto::query()->create(array_merge([
+                    'hgu_marker_id' => $marker->id,
+                    'caption' => 'Upload batch: ' . basename($path),
+                    'uploaded_at' => now(),
+                    'uploaded_by' => $uploadedBy,
+                ], HguMarkerPhotoStorage::buildDatabasePayload($path, $disk)));
+            } finally {
+                HguMarkerPhotoStorage::deleteTempFile($path, $disk);
+            }
 
             $created++;
         }
