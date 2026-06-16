@@ -13,6 +13,8 @@ class EmployeeHistory extends Model
     protected $fillable = [
         'employee_id',
         'event',
+        'is_job_change',
+        'changed_fields',
         'old_values',
         'new_values',
         'changed_by',
@@ -23,6 +25,8 @@ class EmployeeHistory extends Model
         return [
             'old_values' => 'array',
             'new_values' => 'array',
+            'is_job_change' => 'boolean',
+            'changed_fields' => 'array',
         ];
     }
 

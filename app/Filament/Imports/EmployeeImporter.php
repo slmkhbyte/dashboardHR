@@ -191,6 +191,36 @@ class EmployeeImporter extends Importer
                 ->exampleHeader('BAGIAN')
                 ->example('AFDELING I')
                 ->rules(['nullable']),
+            ImportColumn::make('company')
+                ->label('Company/Subsidiary')
+                ->guess(['company', 'subsidiary', 'perusahaan'])
+                ->exampleHeader('Company')
+                ->rules(['nullable']),
+            ImportColumn::make('department')
+                ->label('Department')
+                ->guess(['department', 'departemen'])
+                ->exampleHeader('Department')
+                ->rules(['nullable']),
+            ImportColumn::make('division')
+                ->label('Division')
+                ->guess(['division', 'divisi'])
+                ->exampleHeader('Division')
+                ->rules(['nullable']),
+            ImportColumn::make('unit')
+                ->label('Unit')
+                ->guess(['unit'])
+                ->exampleHeader('Unit')
+                ->rules(['nullable']),
+            ImportColumn::make('location')
+                ->label('Location')
+                ->guess(['location', 'lokasi'])
+                ->exampleHeader('Location')
+                ->rules(['nullable']),
+            ImportColumn::make('superior')
+                ->label('Superior')
+                ->guess(['superior', 'atasan'])
+                ->exampleHeader('Superior')
+                ->rules(['nullable']),
             ImportColumn::make('lvl_bod')
                 ->label('LVL BOD')
                 ->numeric()

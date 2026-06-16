@@ -37,6 +37,30 @@ class EmployeesTable
                     ->label('Work Unit')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('company')
+                    ->label('Company')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('department')
+                    ->label('Department')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('division')
+                    ->label('Division')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('unit')
+                    ->label('Unit')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('location')
+                    ->label('Location')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('superior')
+                    ->label('Superior')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('position.name')
                     ->label('Jabatan')
                     ->searchable()

@@ -96,6 +96,24 @@ class EmployeeForm
                             ->label('Work Unit')
                             ->placeholder('AFDELING I')
                             ->maxLength(255),
+                        TextInput::make('company')
+                            ->label('Company/Subsidiary')
+                            ->maxLength(255),
+                        TextInput::make('department')
+                            ->label('Department')
+                            ->maxLength(255),
+                        TextInput::make('division')
+                            ->label('Division')
+                            ->maxLength(255),
+                        TextInput::make('unit')
+                            ->label('Unit')
+                            ->maxLength(255),
+                        TextInput::make('location')
+                            ->label('Location')
+                            ->maxLength(255),
+                        TextInput::make('superior')
+                            ->label('Superior')
+                            ->maxLength(255),
                         TextInput::make('lvl_bod')
                             ->label('LVL BOD')
                             ->numeric()

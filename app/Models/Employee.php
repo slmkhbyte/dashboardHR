@@ -31,6 +31,12 @@ class Employee extends Model
         'marital_status',
         'dependent_count',
         'work_unit',
+        'company',
+        'department',
+        'division',
+        'unit',
+        'location',
+        'superior',
         'lvl_bod',
         'last_education',
         'is_active',
@@ -107,5 +113,10 @@ class Employee extends Model
     public function histories(): HasMany
     {
         return $this->hasMany(EmployeeHistory::class);
+    }
+
+    public function sapDifferences(): HasMany
+    {
+        return $this->hasMany(EmployeeSapSnapshotDifference::class);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Employee;
+use App\Services\EmployeeSap\EmployeeSapFieldMap;
 use Illuminate\Support\Arr;
 
 class EmployeeObserver
@@ -19,7 +20,9 @@ class EmployeeObserver
 
     public function created(Employee $employee): void
     {
-        $this->recordHistory($employee, 'created', null, $this->cleanValues($employee->getAttributes()));
+        $newValues = $this->cleanValues($employee->getAttributes());
+
+        $this->recordHistory($employee, 'created', null, $newValues, array_keys($newValues));
     }
 
     public function updated(Employee $employee): void
@@ -36,18 +39,25 @@ class EmployeeObserver
             $oldValues[$attribute] = $employee->getOriginal($attribute);
         }
 
-        $this->recordHistory($employee, 'updated', $oldValues, $changes);
+        $this->recordHistory($employee, 'updated', $oldValues, $changes, array_keys($changes));
     }
 
     public function deleting(Employee $employee): void
     {
-        $this->recordHistory($employee, 'deleted', $this->cleanValues($employee->getOriginal()), null);
+        $oldValues = $this->cleanValues($employee->getOriginal());
+
+        $this->recordHistory($employee, 'deleted', $oldValues, null, array_keys($oldValues));
     }
 
-    private function recordHistory(Employee $employee, string $event, ?array $oldValues, ?array $newValues): void
+    private function recordHistory(Employee $employee, string $event, ?array $oldValues, ?array $newValues, array $changedFields): void
     {
+        $jobFields = array_keys(EmployeeSapFieldMap::jobTrackedEmployeeFields());
+        $changedJobFields = array_values(array_intersect($changedFields, $jobFields));
+
         $employee->histories()->create([
             'event' => $event,
+            'is_job_change' => $changedJobFields !== [],
+            'changed_fields' => $changedFields,
             'old_values' => $oldValues,
             'new_values' => $newValues,
             'changed_by' => auth()->id(),
