@@ -60,7 +60,7 @@ class EmployeesTable
                     ->toggleable(),
                 TextColumn::make('lvl_bod')
                     ->label('LVL BOD')
-                    ->numeric()
+                    ->formatStateUsing(fn (?int $state): ?string => $state === null ? null : '-' . $state)
                     ->sortable()
                     ->searchable()
                     ->toggleable(),
@@ -83,6 +83,17 @@ class EmployeesTable
                 SelectFilter::make('employment_status_id')
                     ->relationship('employmentStatus', 'name')
                     ->label('Status Karyawan'),
+                SelectFilter::make('work_unit')
+                    ->label('Work Unit')
+                    ->options(fn (): array => Employee::query()
+                        ->whereNotNull('work_unit')
+                        ->where('work_unit', '!=', '')
+                        ->distinct()
+                        ->orderBy('work_unit')
+                        ->pluck('work_unit', 'work_unit')
+                        ->all())
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordClasses(fn (Employee $record): array | string => $record->has_import_warnings ? ['bg-red-50', 'dark:bg-red-950'] : '')
             ->defaultSort('full_name')

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\EmployeeFamilies\Tables;
 
 use App\Filament\Exports\EmployeeFamilyExporter;
+use App\Models\Employee;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -12,6 +13,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class EmployeeFamiliesTable
 {
@@ -73,7 +75,17 @@ class EmployeeFamiliesTable
                     ])
                     ->label('Hubungan'),
             ])
-            ->defaultSort('name')
+            ->defaultSort(
+                fn (Builder $query, string $direction): Builder => $query
+                    ->orderBy(
+                        Employee::query()
+                            ->select('full_name')
+                            ->whereColumn('employees.id', 'employee_families.employee_id')
+                            ->limit(1),
+                        $direction,
+                    )
+                    ->orderBy('name'),
+            )
             ->paginated([10, 25, 50, 100])
             ->defaultPaginationPageOption(10)
             ->recordActions([

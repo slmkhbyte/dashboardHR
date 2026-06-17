@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Schemas;
 
+use App\Models\Employee;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
@@ -95,6 +96,13 @@ class EmployeeForm
                         TextInput::make('work_unit')
                             ->label('Work Unit')
                             ->placeholder('AFDELING I')
+                            ->datalist(fn (): array => Employee::query()
+                                ->whereNotNull('work_unit')
+                                ->where('work_unit', '!=', '')
+                                ->distinct()
+                                ->orderBy('work_unit')
+                                ->pluck('work_unit')
+                                ->all())
                             ->maxLength(255),
                         TextInput::make('lvl_bod')
                             ->label('LVL BOD')
