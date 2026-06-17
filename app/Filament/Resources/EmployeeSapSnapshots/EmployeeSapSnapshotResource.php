@@ -68,7 +68,14 @@ class EmployeeSapSnapshotResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->orderByDesc('period_year')->orderByDesc('period_month'))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query
+                ->withCount([
+                    'differences as recorded_differences_count' => fn (Builder $query): Builder => $query
+                        ->whereHas('items')
+                        ->whereDoesntHave('items', fn (Builder $query): Builder => $query->where('is_recorded_in_sap', false)),
+                ])
+                ->orderByDesc('period_year')
+                ->orderByDesc('period_month'))
             ->columns([
                 TextColumn::make('period_label')
                     ->label('Periode'),
@@ -83,6 +90,26 @@ class EmployeeSapSnapshotResource extends Resource
                     ->numeric()
                     ->badge()
                     ->color(fn (int $state): string => $state > 0 ? 'warning' : 'success')
+                    ->sortable(),
+                TextColumn::make('recorded_differences_count')
+                    ->label('Tercatat di Pusat')
+                    ->state(function (EmployeeSapSnapshot $record): string {
+                        $recorded = (int) ($record->recorded_differences_count ?? 0);
+                        $total = (int) ($record->differences_count ?? 0);
+
+                        return "{$recorded} / {$total}";
+                    })
+                    ->badge()
+                    ->color(function (EmployeeSapSnapshot $record): string {
+                        $recorded = (int) ($record->recorded_differences_count ?? 0);
+                        $total = (int) ($record->differences_count ?? 0);
+
+                        return match (true) {
+                            $total === 0 => 'gray',
+                            $recorded === $total => 'success',
+                            default => 'warning',
+                        };
+                    })
                     ->sortable(),
                 TextColumn::make('source_file_name')
                     ->label('File')
