@@ -108,4 +108,14 @@ class Employee extends Model
     {
         return $this->hasMany(EmployeeHistory::class);
     }
+
+    public function sapSnapshotRows(): HasMany
+    {
+        return $this->hasMany(EmployeeSapSnapshotRow::class);
+    }
+
+    public function sapSnapshotDifferences(): HasMany
+    {
+        return $this->hasMany(EmployeeSapSnapshotDifference::class);
+    }
 }

@@ -248,6 +248,11 @@ class EmployeeImporter extends Importer
         return $body;
     }
 
+    public function getJobConnection(): ?string
+    {
+        return app()->isLocal() ? 'sync' : parent::getJobConnection();
+    }
+
     private static function normalizeNikSap(mixed $value): ?string
     {
         if (blank($value)) {
