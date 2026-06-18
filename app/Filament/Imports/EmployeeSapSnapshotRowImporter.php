@@ -58,7 +58,7 @@ class EmployeeSapSnapshotRowImporter extends Importer
                 ->rules(['required', 'digits:8']),
             ImportColumn::make('nik_karyawan')
                 ->label('NIK Karyawan')
-                ->guess(['nik karyawan', 'nik_karyawan'])
+                ->guess(['nik karyawan', 'nik_karyawan', 'nik'])
                 ->exampleHeader('nik')
                 ->example('000.0194.0573.0337')
                 ->rules(['nullable']),

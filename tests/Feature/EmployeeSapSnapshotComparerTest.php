@@ -127,4 +127,46 @@ class EmployeeSapSnapshotComparerTest extends TestCase
         $this->assertTrue(EmployeeSapSnapshotDifferenceItem::query()->sole()->is_recorded_in_sap);
         $this->assertSame(0, $newSnapshot->differences()->count());
     }
+
+    public function test_sap_snapshot_compare_ignores_differences_outside_position_and_work_unit(): void
+    {
+        $position = Position::query()->create(['name' => 'Supervisor HR', 'is_active' => true]);
+        $status = EmploymentStatus::query()->create(['name' => 'Tetap', 'color' => 'info', 'is_active' => true]);
+
+        $employee = Employee::query()->create([
+            'nik_sap' => '13004844',
+            'nik_karyawan' => '000.0194.0573.0337',
+            'full_name' => 'Nama Karyawan',
+            'hire_date' => '2026-06-01',
+            'position_id' => $position->getKey(),
+            'employment_status_id' => $status->getKey(),
+            'employee_grade' => 'IB/13',
+            'work_unit' => 'AFDELING II',
+            'lvl_bod' => 6,
+            'is_active' => true,
+        ]);
+
+        $snapshot = EmployeeSapSnapshot::query()->create([
+            'period_month' => 6,
+            'period_year' => 2026,
+            'imported_at' => now(),
+        ]);
+
+        $row = EmployeeSapSnapshotRow::query()->create([
+            'employee_sap_snapshot_id' => $snapshot->getKey(),
+            'nik_sap' => $employee->nik_sap,
+            'full_name' => $employee->full_name,
+            'position' => $position->name,
+            'employment_status' => 'Kontrak',
+            'employee_grade' => 'IC/14',
+            'work_unit' => $employee->work_unit,
+            'lvl_bod' => 7,
+            'hire_date' => '2026-06-15',
+            'is_active' => true,
+        ]);
+
+        app(EmployeeSapSnapshotComparer::class)->compareRow($row);
+
+        $this->assertSame(0, $snapshot->differences()->count());
+    }
 }

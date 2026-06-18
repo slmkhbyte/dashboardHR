@@ -90,9 +90,8 @@ class EmployeeForm
                             ->required(),
                         TextInput::make('employee_grade')
                             ->label('Golongan Karyawan')
-                            ->placeholder('IIID/ 06')
-                            ->maxLength(20)
-                            ->rule('regex:/^[IVXLCDM]+[A-Z]?\/\s?\d{2}$/'),
+                            ->placeholder('IB/13, IIID/ 06, atau format lain')
+                            ->maxLength(50),
                         TextInput::make('work_unit')
                             ->label('Work Unit')
                             ->placeholder('AFDELING I')

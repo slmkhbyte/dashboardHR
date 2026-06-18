@@ -12,11 +12,7 @@ class EmployeeSapFieldMap
     {
         return [
             'position' => 'Jabatan',
-            'employment_status' => 'Status Karyawan',
-            'employee_grade' => 'Golongan',
             'work_unit' => 'Work Unit',
-            'lvl_bod' => 'LVL BOD',
-            'hire_date' => 'Tanggal Bergabung',
         ];
     }
 

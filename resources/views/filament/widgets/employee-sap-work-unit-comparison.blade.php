@@ -130,21 +130,6 @@
                 gap: 0.75rem;
             }
 
-            .sap-comparison-work-unit-code {
-                display: inline-flex;
-                width: 2rem;
-                height: 2rem;
-                flex: 0 0 auto;
-                align-items: center;
-                justify-content: center;
-                border: 1px solid #f59e0b;
-                border-radius: 0.5rem;
-                background: #fffbeb;
-                color: #92400e;
-                font-size: 0.75rem;
-                font-weight: 700;
-            }
-
             .sap-comparison-position {
                 padding: 0.75rem;
             }
@@ -263,12 +248,6 @@
                     color: #ffffff !important;
                 }
 
-                .sap-comparison-work-unit-code {
-                    border-color: rgba(245, 158, 11, 0.45);
-                    background: rgba(245, 158, 11, 0.12);
-                    color: #fbbf24;
-                }
-
                 .sap-comparison-total {
                     background: rgba(255, 255, 255, 0.06) !important;
                     color: #ffffff !important;
@@ -373,10 +352,6 @@
                                         @if ($loop->first)
                                             <td rowspan="{{ count($row['positions']) }}" class="sap-comparison-work-unit">
                                                 <div class="sap-comparison-work-unit-inner">
-                                                    <div class="sap-comparison-work-unit-code">
-                                                        {{ str($row['work_unit'])->replace('AFDELING ', '') }}
-                                                    </div>
-
                                                     <span>
                                                         {{ $row['work_unit'] }}
                                                     </span>
