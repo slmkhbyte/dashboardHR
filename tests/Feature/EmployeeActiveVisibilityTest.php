@@ -6,6 +6,7 @@ use App\Filament\Resources\Employees\Pages\ListEmployees;
 use App\Filament\Widgets\EmployeeCategoryBarChart;
 use App\Filament\Widgets\EmployeeDistributionChart;
 use App\Filament\Widgets\EmployeeLevelBodBarChart;
+use App\Filament\Widgets\EmployeeSapWorkUnitComparison;
 use App\Filament\Widgets\EmployeeTrendLineChart;
 use App\Filament\Widgets\HrStatsOverview;
 use App\Models\Employee;
@@ -162,6 +163,24 @@ class EmployeeActiveVisibilityTest extends TestCase
         $this->assertSame(['2'], $levelData['labels']);
         $this->assertSame([2], $levelData['datasets'][0]['data']);
         $this->assertSame(2, array_sum($trendData['datasets'][0]['data']));
+    }
+
+    public function test_hr_dashboard_widgets_refresh_periodically(): void
+    {
+        $widgetClasses = [
+            HrStatsOverview::class,
+            EmployeeDistributionChart::class,
+            EmployeeCategoryBarChart::class,
+            EmployeeLevelBodBarChart::class,
+            EmployeeTrendLineChart::class,
+            EmployeeSapWorkUnitComparison::class,
+        ];
+
+        foreach ($widgetClasses as $widgetClass) {
+            $property = new \ReflectionProperty($widgetClass, 'pollingInterval');
+
+            $this->assertSame('10s', $property->getValue(app($widgetClass)));
+        }
     }
 
     /**

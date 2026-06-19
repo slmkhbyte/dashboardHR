@@ -14,6 +14,8 @@ class EmployeeSapWorkUnitComparison extends Widget
 
     protected string $view = 'filament.widgets.employee-sap-work-unit-comparison';
 
+    protected ?string $pollingInterval = '10s';
+
     protected int|string|array $columnSpan = 'full';
 
     private const POSITIONS = [

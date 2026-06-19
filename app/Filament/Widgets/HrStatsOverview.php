@@ -12,7 +12,7 @@ class HrStatsOverview extends StatsOverviewWidget
 {
     protected static ?int $sort = -9;
 
-    protected ?string $pollingInterval = null;
+    protected ?string $pollingInterval = '10s';
 
     protected int|string|array $columnSpan = 'full';
 

@@ -11,6 +11,8 @@ class EmployeeDistributionChart extends ChartWidget
 
     protected ?string $heading = 'Distribusi Status Karyawan';
 
+    protected ?string $pollingInterval = '10s';
+
     protected int|string|array $columnSpan = [
         'lg' => 1,
         'xl' => 1,

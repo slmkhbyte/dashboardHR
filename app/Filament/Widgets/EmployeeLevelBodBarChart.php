@@ -11,6 +11,8 @@ class EmployeeLevelBodBarChart extends ChartWidget
 
     protected ?string $heading = 'Jumlah Karyawan per LVL BOD';
 
+    protected ?string $pollingInterval = '10s';
+
     protected int|string|array $columnSpan = [
         'lg' => 1,
         'xl' => 1,

@@ -12,6 +12,8 @@ class EmployeeTrendLineChart extends ChartWidget
 
     protected ?string $heading = 'Progres Penambahan Data per Bulan';
 
+    protected ?string $pollingInterval = '10s';
+
     protected int|string|array $columnSpan = [
         'lg' => 1,
         'xl' => 1,

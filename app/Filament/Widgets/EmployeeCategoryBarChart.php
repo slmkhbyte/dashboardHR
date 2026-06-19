@@ -11,6 +11,8 @@ class EmployeeCategoryBarChart extends ChartWidget
 
     protected ?string $heading = 'Perbandingan Karyawan per Work Unit';
 
+    protected ?string $pollingInterval = '10s';
+
     protected int|string|array $columnSpan = [
         'lg' => 1,
         'xl' => 1,
