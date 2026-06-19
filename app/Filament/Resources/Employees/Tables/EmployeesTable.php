@@ -13,6 +13,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class EmployeesTable
 {
@@ -86,12 +87,20 @@ class EmployeesTable
                 SelectFilter::make('work_unit')
                     ->label('Work Unit')
                     ->options(fn (): array => Employee::query()
+                        ->selectRaw('UPPER(TRIM(work_unit)) as work_unit')
                         ->whereNotNull('work_unit')
                         ->where('work_unit', '!=', '')
                         ->distinct()
                         ->orderBy('work_unit')
                         ->pluck('work_unit', 'work_unit')
                         ->all())
+                    ->query(function (Builder $query, array $data): Builder {
+                        $workUnit = Employee::normalizeWorkUnit($data['value'] ?? null);
+
+                        return blank($workUnit)
+                            ? $query
+                            : $query->whereRaw('UPPER(TRIM(work_unit)) = ?', [$workUnit]);
+                    })
                     ->searchable()
                     ->preload(),
             ])

@@ -36,6 +36,16 @@ class EmployeeSapSnapshotRow extends Model
         ];
     }
 
+    public function setWorkUnitAttribute(mixed $value): void
+    {
+        $this->attributes['work_unit'] = Employee::normalizeWorkUnit($value);
+    }
+
+    public function getWorkUnitAttribute(mixed $value): ?string
+    {
+        return Employee::normalizeWorkUnit($value);
+    }
+
     public function snapshot(): BelongsTo
     {
         return $this->belongsTo(EmployeeSapSnapshot::class, 'employee_sap_snapshot_id');

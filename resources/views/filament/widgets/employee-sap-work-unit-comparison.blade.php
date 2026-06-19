@@ -11,7 +11,7 @@
         @php
             $rows = $this->getComparisonRows();
             $statusColumns = [
-                'karpel_tetap' => 'Karpel-Tetap',
+                'karpel_tetap' => 'Karpel - Tetap',
                 'ktng' => 'KTNG',
                 'pkwt' => 'PKWT',
                 'total' => 'Total',

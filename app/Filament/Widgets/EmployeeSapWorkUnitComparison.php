@@ -18,15 +18,27 @@ class EmployeeSapWorkUnitComparison extends Widget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected function getPollingInterval(): ?string
+    {
+        return $this->pollingInterval;
+    }
+
     private const POSITIONS = [
         'PEMANEN' => 'PEMANEN',
         'PEMELIHARAAN' => 'PEMELIHARAAN',
     ];
 
     private const STATUSES = [
-        'karpel_tetap' => 'Karpel-Tetap',
+        'karpel_tetap' => 'Karpel - Tetap',
         'ktng' => 'KTNG',
         'pkwt' => 'PKWT',
+    ];
+
+    private const STATUS_ALIASES = [
+        'KARPEL-TETAP' => 'Karpel - Tetap',
+        'KARPEL - TETAP' => 'Karpel - Tetap',
+        'KTNG' => 'KTNG',
+        'PKWT' => 'PKWT',
     ];
 
     /**
@@ -87,7 +99,7 @@ class EmployeeSapWorkUnitComparison extends Widget
     private function getLocalCounts(): Collection
     {
         $targetPositions = array_keys(self::POSITIONS);
-        $targetStatuses = array_values(self::STATUSES);
+        $targetStatuses = array_keys(self::STATUS_ALIASES);
 
         return Employee::query()
             ->active()
@@ -100,7 +112,7 @@ class EmployeeSapWorkUnitComparison extends Widget
             ->join('employment_statuses', 'employment_statuses.id', '=', 'employees.employment_status_id')
             ->whereNotNull('employees.work_unit')
             ->whereRaw('LOWER(employees.work_unit) LIKE ?', ['%afdeling%'])
-            ->whereIn('employment_statuses.name', $targetStatuses)
+            ->whereIn(DB::raw('UPPER(employment_statuses.name)'), $targetStatuses)
             ->whereIn(DB::raw('LOWER(positions.name)'), array_map('strtolower', $targetPositions))
             ->get()
             ->reduce(
@@ -120,7 +132,7 @@ class EmployeeSapWorkUnitComparison extends Widget
     private function getSapCounts(EmployeeSapSnapshot $snapshot): Collection
     {
         $targetPositions = array_keys(self::POSITIONS);
-        $targetStatuses = array_values(self::STATUSES);
+        $targetStatuses = array_keys(self::STATUS_ALIASES);
 
         return $snapshot->rows()
             ->select([
@@ -135,7 +147,7 @@ class EmployeeSapWorkUnitComparison extends Widget
                     ->where('is_active', true)
                     ->orWhereNull('is_active');
             })
-            ->whereIn('employment_status', $targetStatuses)
+            ->whereIn(DB::raw('UPPER(employment_status)'), $targetStatuses)
             ->whereIn(DB::raw('LOWER(position)'), array_map('strtolower', $targetPositions))
             ->get()
             ->reduce(
@@ -153,20 +165,21 @@ class EmployeeSapWorkUnitComparison extends Widget
     {
         $workUnitKey = $this->normalizeWorkUnit($workUnit);
         $positionKey = $this->normalizePosition($position);
+        $statusKey = $this->normalizeEmploymentStatus($status);
 
-        if ($workUnitKey === null || $positionKey === null || ! in_array($status, self::STATUSES, true)) {
+        if ($workUnitKey === null || $positionKey === null || $statusKey === null) {
             return $counts;
         }
 
         $current = $counts->get($workUnitKey, collect())
             ->get($positionKey, collect())
-            ->get($status, 0);
+            ->get($statusKey, 0);
 
         $counts->put(
             $workUnitKey,
             $counts->get($workUnitKey, collect())->put(
                 $positionKey,
-                $counts->get($workUnitKey, collect())->get($positionKey, collect())->put($status, $current + 1),
+                $counts->get($workUnitKey, collect())->get($positionKey, collect())->put($statusKey, $current + 1),
             ),
         );
 
@@ -206,5 +219,16 @@ class EmployeeSapWorkUnitComparison extends Widget
         $position = mb_strtoupper(trim($position));
 
         return self::POSITIONS[$position] ?? null;
+    }
+
+    private function normalizeEmploymentStatus(?string $status): ?string
+    {
+        if (blank($status)) {
+            return null;
+        }
+
+        $status = preg_replace('/\s*-\s*/', ' - ', mb_strtoupper(trim($status)));
+
+        return self::STATUS_ALIASES[$status] ?? null;
     }
 }

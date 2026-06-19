@@ -96,6 +96,7 @@ class EmployeeForm
                             ->label('Work Unit')
                             ->placeholder('AFDELING I')
                             ->datalist(fn (): array => Employee::query()
+                                ->selectRaw('UPPER(TRIM(work_unit)) as work_unit')
                                 ->whereNotNull('work_unit')
                                 ->where('work_unit', '!=', '')
                                 ->distinct()

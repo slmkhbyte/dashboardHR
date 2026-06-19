@@ -34,13 +34,16 @@ class EmployeeSapFieldMap
         return match ($field) {
             'position' => $employee->position?->name,
             'employment_status' => $employee->employmentStatus?->name,
+            'work_unit' => Employee::normalizeWorkUnit($employee->work_unit),
             default => $employee->{$field},
         };
     }
 
     public static function sapValue(EmployeeSapSnapshotRow $row, string $field): mixed
     {
-        return $row->{$field};
+        return $field === 'work_unit'
+            ? Employee::normalizeWorkUnit($row->work_unit)
+            : $row->{$field};
     }
 
     public static function normalize(mixed $value): ?string

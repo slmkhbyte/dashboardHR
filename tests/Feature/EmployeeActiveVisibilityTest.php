@@ -87,7 +87,7 @@ class EmployeeActiveVisibilityTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->createEmployee([
+        $mixedCaseEmployee = $this->createEmployee([
             'nik_sap' => '13000004',
             'full_name' => 'Active Two',
             'employment_status_id' => $activeStatus->id,
@@ -97,6 +97,10 @@ class EmployeeActiveVisibilityTest extends TestCase
             'hire_date' => now()->subMonth()->startOfMonth(),
             'is_active' => true,
         ]);
+
+        Employee::query()
+            ->whereKey($mixedCaseEmployee)
+            ->update(['work_unit' => 'afdeling i']);
 
         $this->createEmployee([
             'nik_sap' => '13000005',

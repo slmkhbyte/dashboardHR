@@ -47,6 +47,27 @@ class Employee extends Model
         ];
     }
 
+    public static function normalizeWorkUnit(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        $normalized = preg_replace('/\s+/', ' ', trim((string) $value));
+
+        return $normalized === '' ? null : mb_strtoupper($normalized);
+    }
+
+    public function setWorkUnitAttribute(mixed $value): void
+    {
+        $this->attributes['work_unit'] = self::normalizeWorkUnit($value);
+    }
+
+    public function getWorkUnitAttribute(mixed $value): ?string
+    {
+        return self::normalizeWorkUnit($value);
+    }
+
     public function getDependentCodeAttribute(): ?string
     {
         if (blank($this->marital_status)) {

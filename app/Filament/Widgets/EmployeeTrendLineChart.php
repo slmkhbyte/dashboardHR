@@ -10,6 +10,11 @@ class EmployeeTrendLineChart extends ChartWidget
 {
     protected static ?int $sort = -6;
 
+    public static function canView(): bool
+    {
+        return false;
+    }
+
     protected ?string $heading = 'Progres Penambahan Data per Bulan';
 
     protected ?string $pollingInterval = '10s';

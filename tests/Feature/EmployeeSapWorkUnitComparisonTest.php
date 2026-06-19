@@ -17,7 +17,7 @@ class EmployeeSapWorkUnitComparisonTest extends TestCase
 
     public function test_comparison_counts_afdeling_rows_for_target_positions_and_statuses(): void
     {
-        $karpelTetap = EmploymentStatus::query()->create(['name' => 'Karpel-Tetap', 'color' => 'success', 'is_active' => true]);
+        $karpelTetap = EmploymentStatus::query()->create(['name' => 'Karpel - Tetap', 'color' => 'success', 'is_active' => true]);
         $ktng = EmploymentStatus::query()->create(['name' => 'KTNG', 'color' => 'warning', 'is_active' => true]);
         $pkwt = EmploymentStatus::query()->create(['name' => 'PKWT', 'color' => 'info', 'is_active' => true]);
         $tetap = EmploymentStatus::query()->create(['name' => 'Tetap', 'color' => 'gray', 'is_active' => true]);
@@ -44,7 +44,7 @@ class EmployeeSapWorkUnitComparisonTest extends TestCase
             'employee_sap_snapshot_id' => $oldSnapshot->getKey(),
             'nik_sap' => '23000001',
             'position' => 'PEMANEN',
-            'employment_status' => 'Karpel-Tetap',
+            'employment_status' => 'Karpel - Tetap',
             'work_unit' => 'AFDELING I',
             'is_active' => true,
         ]);
@@ -59,7 +59,7 @@ class EmployeeSapWorkUnitComparisonTest extends TestCase
             'employee_sap_snapshot_id' => $latestSnapshot->getKey(),
             'nik_sap' => '23000002',
             'position' => 'pemanen',
-            'employment_status' => 'Karpel-Tetap',
+            'employment_status' => 'Karpel - Tetap',
             'work_unit' => 'AFDELING I',
             'is_active' => true,
         ]);

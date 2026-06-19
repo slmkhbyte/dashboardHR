@@ -22,9 +22,11 @@ class EmployeeCategoryBarChart extends ChartWidget
     {
         $workUnitCounts = Employee::query()
             ->active()
-            ->selectRaw('work_unit, count(*) as aggregate')
+            ->selectRaw('UPPER(TRIM(work_unit)) as work_unit, count(*) as aggregate')
             ->whereNotNull('work_unit')
-            ->groupBy('work_unit')
+            ->where('work_unit', '!=', '')
+            ->groupByRaw('UPPER(TRIM(work_unit))')
+            ->orderBy('work_unit')
             ->pluck('aggregate', 'work_unit');
 
         if ($workUnitCounts->isEmpty()) {
