@@ -10,6 +10,7 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Number;
+use Illuminate\Validation\ValidationException;
 
 class EmployeeImporter extends Importer
 {
@@ -34,7 +35,8 @@ class EmployeeImporter extends Importer
                 ->guess(['nik karyawan', 'nik_karyawan', 'nik'])
                 ->exampleHeader('nik')
                 ->example('000.0194.0573.0337')
-                ->rules(['nullable']),
+                ->castStateUsing(fn (mixed $originalState, mixed $state): mixed => self::normalizeNikKaryawan($originalState ?? $state))
+                ->rules(['nullable', 'regex:/^(?:\d{3}\.\d{4}\.\d{4}\.\d{4}|\d{16})$/']),
             ImportColumn::make('full_name')
                 ->label('Nama Lengkap')
                 ->guess(['nama lengkap', 'nama karyawan', 'nama', 'full_name', 'full name'])
@@ -184,7 +186,14 @@ class EmployeeImporter extends Importer
                 ->guess(['jumlah tanggungan anak', 'jumlah anak', 'dependent_count', 'dependent count'])
                 ->exampleHeader('dependent_count')
                 ->example('0')
-                ->rules(['nullable']),
+                ->rules(['nullable'])
+                ->fillRecordUsing(function (Employee $record, mixed $state): void {
+                    if (blank($state)) {
+                        return;
+                    }
+
+                    $record->dependent_count = (int) $state;
+                }),
             ImportColumn::make('work_unit')
                 ->label('Work Unit')
                 ->guess(['bagian', 'work unit', 'work_unit', 'unit kerja'])
@@ -203,7 +212,14 @@ class EmployeeImporter extends Importer
                 ->boolean()
                 ->guess(['aktif', 'is_active', 'is active'])
                 ->exampleHeader('is_active')
-                ->example('true'),
+                ->example('true')
+                ->fillRecordUsing(function (Employee $record, mixed $state): void {
+                    if (blank($state)) {
+                        return;
+                    }
+
+                    $record->is_active = (bool) $state;
+                }),
         ];
     }
 
@@ -218,6 +234,8 @@ class EmployeeImporter extends Importer
     {
         $this->record->full_name ??= 'Karyawan ' . $this->record->nik_sap;
         $this->record->hire_date ??= now()->toDateString();
+        $this->record->dependent_count ??= 0;
+        $this->record->is_active ??= true;
 
         if (blank($this->record->position_id)) {
             $this->record->position()->associate(Position::getOrCreateDefault());
@@ -226,6 +244,12 @@ class EmployeeImporter extends Importer
         if (blank($this->record->employment_status_id)) {
             $this->record->employmentStatus()->associate(EmploymentStatus::getOrCreateDefault());
         }
+    }
+
+    protected function afterValidate(): void
+    {
+        $this->validateUniqueEmployeeValue('nik_karyawan', 'NIK Karyawan');
+        $this->validateUniqueEmployeeValue('email', 'Email');
     }
 
     public function getValidationAttributes(): array
@@ -267,5 +291,46 @@ class EmployeeImporter extends Importer
         }
 
         return $value;
+    }
+
+    private static function normalizeNikKaryawan(mixed $value): ?string
+    {
+        if (blank($value)) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+        $value = preg_replace('/\s+/', '', $value);
+
+        if (preg_match('/^\d+\.0+$/', $value)) {
+            $value = strstr($value, '.', before_needle: true);
+        }
+
+        return $value === '' ? null : $value;
+    }
+
+    private function validateUniqueEmployeeValue(string $attribute, string $label): void
+    {
+        $value = $this->data[$attribute] ?? null;
+
+        if (blank($value)) {
+            return;
+        }
+
+        $exists = Employee::query()
+            ->where($attribute, $value)
+            ->when(
+                $this->record?->exists,
+                fn ($query) => $query->whereKeyNot($this->record->getKey()),
+            )
+            ->exists();
+
+        if (! $exists) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            $attribute => "{$label} sudah dipakai oleh karyawan lain.",
+        ]);
     }
 }

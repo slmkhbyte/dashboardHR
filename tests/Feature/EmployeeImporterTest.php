@@ -83,6 +83,115 @@ class EmployeeImporterTest extends TestCase
         ]);
     }
 
+    public function test_employee_import_treats_blank_employee_nik_values_as_null(): void
+    {
+        $import = $this->runImport([
+            [
+                'nik_sap' => '13004848',
+                'nik' => '',
+                'nama' => 'Tanpa NIK Satu',
+            ],
+            [
+                'nik_sap' => '13004849',
+                'nik' => '   ',
+                'nama' => 'Tanpa NIK Dua',
+            ],
+        ], [
+            'nik_sap' => 'nik_sap',
+            'nik_karyawan' => 'nik',
+            'full_name' => 'nama',
+        ]);
+
+        $this->assertSame(2, $import->successful_rows);
+        $this->assertCount(0, $import->failedRows);
+
+        $this->assertDatabaseHas('employees', [
+            'nik_sap' => '13004848',
+            'nik_karyawan' => null,
+            'full_name' => 'Tanpa NIK Satu',
+        ]);
+
+        $this->assertDatabaseHas('employees', [
+            'nik_sap' => '13004849',
+            'nik_karyawan' => null,
+            'full_name' => 'Tanpa NIK Dua',
+        ]);
+    }
+
+    public function test_employee_import_keeps_defaults_when_required_default_columns_are_blank(): void
+    {
+        $import = $this->runImport([
+            [
+                'nik_sap' => '19017762',
+                'nama' => 'HOLAN SUPARTO',
+                'dependent_count' => '',
+                'is_active' => '',
+            ],
+        ], [
+            'nik_sap' => 'nik_sap',
+            'full_name' => 'nama',
+            'dependent_count' => 'dependent_count',
+            'is_active' => 'is_active',
+        ]);
+
+        $this->assertSame(1, $import->successful_rows);
+        $this->assertCount(0, $import->failedRows);
+
+        $this->assertDatabaseHas('employees', [
+            'nik_sap' => '19017762',
+            'full_name' => 'HOLAN SUPARTO',
+            'dependent_count' => 0,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_employee_import_marks_duplicate_employee_nik_as_failed_row_before_saving(): void
+    {
+        $position = Position::getOrCreateDefault();
+        $employmentStatus = EmploymentStatus::getOrCreateDefault();
+
+        Employee::query()->create([
+            'nik_sap' => '13004850',
+            'nik_karyawan' => '6103204107710123',
+            'full_name' => 'Karyawan Lama',
+            'hire_date' => now()->toDateString(),
+            'position_id' => $position->id,
+            'employment_status_id' => $employmentStatus->id,
+            'is_active' => true,
+        ]);
+
+        $import = $this->runImport([
+            [
+                'nik_sap' => '13004851',
+                'nik' => '6103204107710123',
+                'nama' => 'NIK Duplikat',
+            ],
+            [
+                'nik_sap' => '13004852',
+                'nik' => '6103204107710124',
+                'nama' => 'NIK Baru',
+            ],
+        ], [
+            'nik_sap' => 'nik_sap',
+            'nik_karyawan' => 'nik',
+            'full_name' => 'nama',
+        ]);
+
+        $this->assertSame(1, $import->successful_rows);
+        $this->assertCount(1, $import->failedRows);
+        $this->assertStringContainsString('NIK Karyawan sudah dipakai', $import->failedRows->first()->validation_error ?? '');
+
+        $this->assertDatabaseMissing('employees', [
+            'nik_sap' => '13004851',
+        ]);
+
+        $this->assertDatabaseHas('employees', [
+            'nik_sap' => '13004852',
+            'nik_karyawan' => '6103204107710124',
+            'full_name' => 'NIK Baru',
+        ]);
+    }
+
     public function test_employee_import_accepts_provided_employee_csv_headers(): void
     {
         $import = $this->runImport([
